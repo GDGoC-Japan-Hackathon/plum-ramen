@@ -1,0 +1,5 @@
+__pycache__/
+.venv/
+1_cloud_sql_setting.md
+2_cloud_run_setting.md
+cloud-sql-proxy
