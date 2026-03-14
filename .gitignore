@@ -2,4 +2,5 @@ __pycache__/
 .venv/
 1_cloud_sql_setting.md
 2_cloud_run_setting.md
+3_github_actions_setting.md
 cloud-sql-proxy
