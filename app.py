@@ -1,11 +1,9 @@
 import os
-
 import sqlalchemy
 from fastapi import FastAPI
 from google.cloud.sql.connector import Connector, IPTypes
 
 app = FastAPI()
-
 
 def create_engine():
     database_url = os.getenv("DATABASE_URL")
@@ -26,14 +24,11 @@ def create_engine():
 
     return sqlalchemy.create_engine("postgresql+pg8000://", creator=getconn)
 
-
 engine = create_engine()
-
 
 @app.get("/")
 def root():
     return {"message": "Brand New Hello World"}
-
 
 @app.get("/users")
 def get_users():
