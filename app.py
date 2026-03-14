@@ -32,7 +32,7 @@ engine = create_engine()
 
 @app.get("/")
 def root():
-    return {"message": "Hello World"}
+    return {"message": "Brand New Hello World"}
 
 
 @app.get("/users")
