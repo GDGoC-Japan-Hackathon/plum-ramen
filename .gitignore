@@ -3,4 +3,5 @@ __pycache__/
 1_cloud_sql_setting.md
 2_cloud_run_setting.md
 3_github_actions_setting.md
+4_docker_compose_setting.md
 cloud-sql-proxy
