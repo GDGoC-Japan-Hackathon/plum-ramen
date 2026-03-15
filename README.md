@@ -12,7 +12,7 @@ docker compose up
 ```
 ## コンテナを停止する
 ```bash
-docker compose down
+docker compose down -v
 ```
 
 # デプロイURL
