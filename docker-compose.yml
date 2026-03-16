@@ -6,8 +6,12 @@ services:
       - "8000:8000"
     environment:
       DATABASE_URL: postgresql+pg8000://appuser:gdgoc@db:5432/appdb
+      GOOGLE_CLOUD_PROJECT: gdgoc2026
+      GOOGLE_CLOUD_LOCATION: asia-northeast1
+      GOOGLE_GENAI_USE_VERTEXAI: "true"
     volumes:
       - .:/app
+      - ${HOME}/.config/gcloud:/root/.config/gcloud:ro
     depends_on:
       db:
         condition: service_healthy
