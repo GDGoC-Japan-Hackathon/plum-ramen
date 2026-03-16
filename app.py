@@ -149,4 +149,4 @@ def get_questions(diaries_id):
 
     except Exception as e:
         print(f"Error fetching questions: {e}")
-        raise HTTPException(status_code=500, detail="質問の取得に失敗しました"(str(e)))
+        raise HTTPException(status_code=500, detail=f"質問の取得に失敗しました: {e}")
