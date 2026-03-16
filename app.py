@@ -1,11 +1,9 @@
 import os
-
 import sqlalchemy
 from fastapi import FastAPI
 from google.cloud.sql.connector import Connector, IPTypes
 
 app = FastAPI()
-
 
 def create_engine():
     database_url = os.getenv("DATABASE_URL")
@@ -26,14 +24,11 @@ def create_engine():
 
     return sqlalchemy.create_engine("postgresql+pg8000://", creator=getconn)
 
-
 engine = create_engine()
-
 
 @app.get("/")
 def root():
     return {"message": "Brand New Hello World"}
-
 
 @app.get("/users")
 def get_users():
@@ -43,7 +38,6 @@ def get_users():
         ).mappings().all()
 
     return {"items": [dict(row) for row in rows]}
-
 
 @app.get("/tables")
 def get_tables():
@@ -60,3 +54,21 @@ def get_tables():
         ).scalars().all()
 
     return rows
+
+@app.post("/api/diaries")
+def create_diary(body: str):
+    try:
+        with engine.begin() as conn:
+            result = conn.execute(
+                sqlalchemy.text("""
+                    INSERT INTO diaries (user_id, body)
+                    VALUES (:user_id, :body)
+                    RETURNING id, user_id, body, created_at
+                """),
+                {"user_id": 1, "body": body}
+            ).mappings().fetchone()
+
+        return {"success": True, "data": dict(result)}
+
+    except Exception as e:
+        return {"success": False, "message": str(e)}
