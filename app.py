@@ -14,6 +14,12 @@ class InsertDiaryResponse(BaseModel):
     body: str
     created_at: datetime
 
+class GetDiaryResponse(BaseModel):
+    id: int
+    user_id: int
+    body: str
+    created_at: datetime
+
 app = FastAPI()
 
 def create_engine():
@@ -73,3 +79,23 @@ def create_diary(request: InsertDiaryRequest):
         raise
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
+
+@app.get("/diaries", response_model=list[GetDiaryResponse])
+def get_diaries():
+    try:
+        with engine.connect() as conn:
+            rows = conn.execute(
+                sqlalchemy.text("""
+                    SELECT id, user_id, body, created_at 
+                    FROM diaries 
+                    WHERE user_id = :user_id 
+                    ORDER BY created_at DESC
+                """),
+                {"user_id": 1}
+            ).mappings().all()
+
+        return [GetDiaryResponse(**row) for row in rows]
+    
+    except Exception as e:
+        print(f"Error fetching diaries: {e}")
+        raise HTTPException(status_code=500, detail="Failed to fetch diaries")   
