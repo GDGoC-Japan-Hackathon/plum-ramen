@@ -112,4 +112,4 @@ def get_diaries(user_id):
     
     except Exception as e:
         print(f"Error fetching diaries: {e}")
-        raise HTTPException(status_code=500, detail="Failed to fetch diaries")   
+        raise HTTPException(status_code=500, detail="Failed to fetch diaries")
