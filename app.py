@@ -43,3 +43,20 @@ def get_users():
         ).mappings().all()
 
     return {"items": [dict(row) for row in rows]}
+
+
+@app.get("/tables")
+def get_tables():
+    with engine.connect() as conn:
+        rows = conn.execute(
+            sqlalchemy.text(
+                """
+                SELECT tablename
+                FROM pg_catalog.pg_tables
+                WHERE schemaname = 'public'
+                ORDER BY tablename
+                """
+            )
+        ).scalars().all()
+
+    return rows
