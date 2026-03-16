@@ -1,7 +1,18 @@
 import os
 import sqlalchemy
-from fastapi import FastAPI
+from fastapi import FastAPI, HTTPException
 from google.cloud.sql.connector import Connector, IPTypes
+from pydantic import BaseModel
+from datetime import datetime
+
+class InsertDiaryRequest(BaseModel):
+    body: str
+
+class InsertDiaryResponse(BaseModel):
+    id: int
+    user_id: int
+    body: str
+    created_at: datetime
 
 app = FastAPI()
 
@@ -40,8 +51,8 @@ def get_users():
     return {"items": [dict(row) for row in rows]}
 
 
-@app.post("/diaries")
-def create_diary(body: str):
+@app.post("/diaries", response_model=InsertDiaryResponse)
+def create_diary(request: InsertDiaryRequest):
     try:
         with engine.begin() as conn:
             result = conn.execute(
@@ -50,10 +61,15 @@ def create_diary(body: str):
                     VALUES (:user_id, :body)
                     RETURNING id, user_id, body, created_at
                 """),
-                {"user_id": 1, "body": body}
+                {"user_id": 1, "body": request.body}
             ).mappings().fetchone()
+        
+        if result is None:
+            raise HTTPException(status_code=400, detail="Failed to create diary")
 
-        return {"success": True, "data": dict(result)}
+        return InsertDiaryResponse(**result)
 
+    except HTTPException:
+        raise
     except Exception as e:
-        return {"success": False, "message": str(e)}
+        raise HTTPException(status_code=500, detail=str(e))
