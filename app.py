@@ -1,6 +1,6 @@
 import os
 import sqlalchemy
-from fastapi import FastAPI, HTTPException
+from fastapi import FastAPI, HTTPException, Depends
 from google.cloud.sql.connector import Connector, IPTypes
 from pydantic import BaseModel
 from datetime import datetime
@@ -19,6 +19,15 @@ class GetDiaryResponse(BaseModel):
     user_id: int
     body: str
     created_at: datetime
+
+class GetQuestionResponse(BaseModel):
+    id: int
+    diaries_id: int
+    question_id: int
+    question_text: str
+    choice_a: str
+    choice_b: str
+    choice_c: str
 
 app = FastAPI()
 
@@ -98,4 +107,32 @@ def get_diaries():
     
     except Exception as e:
         print(f"Error fetching diaries: {e}")
-        raise HTTPException(status_code=500, detail="Failed to fetch diaries")   
+        raise HTTPException(status_code=500, detail="Failed to fetch diaries")  
+
+@app.get("/diaries/questions/{diaries_id}", response_model=list[GetQuestionResponse])
+def get_questions(diaries_id):
+    try:
+        with engine.connect() as conn:
+            rows = conn.execute(
+                sqlalchemy.text("""
+                    SELECT
+                        q.id, 
+                        q.diaries_id, 
+                        q.question_id, 
+                        q.question_text, 
+                        q.choice_a, 
+                        q.choice_b, 
+                        q.choice_c
+                    FROM questions q
+                    INNER JOIN diaries d ON q.diaries_id = d.id
+                    WHERE d.id = :diaries_id
+                    ORDER BY q.question_id ASC
+                """),
+                {"diaries_id": diaries_id}
+            ).mappings().all()
+
+        return [GetQuestionResponse(**row) for row in rows]
+
+    except Exception as e:
+        print(f"Error fetching questions: {e}")
+        raise HTTPException(status_code=500, detail="質問の取得に失敗しました")
