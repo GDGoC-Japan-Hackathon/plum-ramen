@@ -2,7 +2,7 @@ import os
 import sqlalchemy
 from fastapi import FastAPI, HTTPException, Depends
 from google.cloud.sql.connector import Connector, IPTypes
-from pydantic import BaseModel
+from pydantic import BaseModel, Field
 from datetime import datetime
 
 class InsertDiaryRequest(BaseModel):
@@ -28,6 +28,20 @@ class GetQuestionResponse(BaseModel):
     choice_a: str
     choice_b: str
     choice_c: str
+
+class InsertAnswerRequest(BaseModel):
+    diaries_id: int
+    question_id: int
+    selected_choice: str = Field(..., min_length=1, max_length=1, pattern="^[A-C]$")
+
+class BulkInsertAnswerRequest(BaseModel):
+    answers: list[InsertAnswerRequest] = Field(..., min_length=3, max_length=3)
+
+class InsertAnswerResponse(BaseModel):
+    id: int
+    diaries_id: int
+    question_id: int
+    selected_choice: str
 
 app = FastAPI()
 
@@ -136,3 +150,23 @@ def get_questions(diaries_id):
     except Exception as e:
         print(f"Error fetching questions: {e}")
         raise HTTPException(status_code=500, detail="質問の取得に失敗しました")
+
+@app.post("/answers", response_model=list[InsertAnswerResponse])
+def create_answers(request_data: BulkInsertAnswerRequest):
+    try:
+        data_to_insert = [item.model_dump() for item in request_data.answers]
+
+        with engine.begin() as conn:
+            result = conn.execute(
+                sqlalchemy.text("""
+                INSERT INTO answers (diaries_id, question_id, selected_choice)
+                VALUES (:diaries_id, :question_id, :selected_choice)
+                RETURNING id, diaries_id, question_id, selected_choice
+            """),
+            data_to_insert
+            ).mappings().all()
+        return [InsertAnswerResponse(**row) for row in result]
+    
+    except Exception as e:
+        print(f"Error saving bulk answers: {e}")
+        raise HTTPException(status_code=500, detail="一括保存に失敗しました")
