@@ -38,3 +38,22 @@ def get_users():
         ).mappings().all()
 
     return {"items": [dict(row) for row in rows]}
+
+
+@app.post("/diaries")
+def create_diary(body: str):
+    try:
+        with engine.begin() as conn:
+            result = conn.execute(
+                sqlalchemy.text("""
+                    INSERT INTO diaries (user_id, body)
+                    VALUES (:user_id, :body)
+                    RETURNING id, user_id, body, created_at
+                """),
+                {"user_id": 1, "body": body}
+            ).mappings().fetchone()
+
+        return {"success": True, "data": dict(result)}
+
+    except Exception as e:
+        return {"success": False, "message": str(e)}
