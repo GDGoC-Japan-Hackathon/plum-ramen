@@ -80,8 +80,8 @@ def create_diary(request: InsertDiaryRequest):
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
 
-@app.get("/diaries", response_model=list[GetDiaryResponse])
-def get_diaries():
+@app.get("/diaries/{user_id}", response_model=list[GetDiaryResponse])
+def get_diaries(user_id):
     try:
         with engine.connect() as conn:
             rows = conn.execute(
@@ -91,7 +91,7 @@ def get_diaries():
                     WHERE user_id = :user_id 
                     ORDER BY created_at DESC
                 """),
-                {"user_id": 1}
+                {"user_id": user_id}
             ).mappings().all()
 
         return [GetDiaryResponse(**row) for row in rows]
