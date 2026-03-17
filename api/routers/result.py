@@ -1,57 +1,31 @@
 from fastapi import APIRouter, HTTPException
 from schemas.result import GenerateResultRequest, GenerateResultResponse, InsertResultSummaryRequest, InsertResultSummaryResponse, GetResultResponse
-from functools import lru_cache
-from google import genai
-from google.genai import types
-from prompts.generate_result import PROMPT
-import os
+from services.result import generate_result_service, save_result_service, get_result_by_user_and_diary_service
 import sqlalchemy
 from core.db import engine
 
-router = APIRouter()
+# ここに実装するapi
+## 結果生成
+## 結果保存
+## 結果取得（1件）
+## 結果取得（複数）
 
-@lru_cache
-def get_gemini_client():
-    return genai.Client(
-        vertexai=True,
-        project=os.environ["GOOGLE_CLOUD_PROJECT"],
-        location=os.environ["GOOGLE_CLOUD_LOCATION"],
-        http_options=types.HttpOptions(api_version="v1"),
-    )
+router = APIRouter()
 
 @router.post("/api/result", response_model=GenerateResultResponse)
 def generate_result(request: GenerateResultRequest):
-    prompt = PROMPT.format(diary=request.diary, questions=request.questions, answers=request.answers)
+    try:
+        return generate_result_service(request)
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
 
-    response = get_gemini_client().models.generate_content(
-        model="gemini-2.5-flash",
-        contents=prompt,
-        config=types.GenerateContentConfig(
-            response_mime_type="application/json",
-            response_schema=GenerateResultResponse,
-        ),
-    )
-
-    return response.parsed
-
-@router.post("/api/result/save")
+@router.post("/api/result/save", response_model=InsertResultSummaryResponse)
 def save_result(request: InsertResultSummaryRequest):
     try:
-        with engine.begin() as conn:
-            result = conn.execute(
-                sqlalchemy.text("""
-                    INSERT INTO results (diaries_id, type, ei_score, sn_score, tf_score, jp_score, summary)
-                    VALUES (:diaries_id, :type, :ei_score, :sn_score, :tf_score, :jp_score, :summary)
-                    RETURNING id, diaries_id, type, ei_score, sn_score, tf_score, jp_score, summary
-                """),
-                {"diaries_id": request.diaries_id, "type": request.type, "ei_score": request.ei_score, "sn_score": request.sn_score, "tf_score": request.tf_score, "jp_score": request.jp_score, "summary": request.summary}
-            ).mappings().fetchone()
-    
+        result = save_result_service(request)
         if result is None:
-            raise HTTPException(status_code=400, detail="Failed to insert result summary")
-
-        return InsertResultSummaryResponse(**result)
-
+            raise HTTPException(status_code=400, detail="Failed to save result")
+        return result
     except HTTPException:
         raise
     except Exception as e:
@@ -60,22 +34,10 @@ def save_result(request: InsertResultSummaryRequest):
 @router.get("/api/user/{user_id}/{diaries_id}/result", response_model=GetResultResponse)
 def get_result_by_user_and_diaries(user_id: int, diaries_id: int):
     try:
-        with engine.connect() as conn:
-            result = conn.execute(
-                sqlalchemy.text("""
-                    SELECT results.id, diaries.user_id, results.diaries_id, type, ei_score, sn_score, tf_score, jp_score, summary
-                    FROM results
-                    INNER JOIN diaries ON results.diaries_id = diaries.id
-                    WHERE diaries.user_id = :user_id AND diaries.id = :diaries_id
-                """),
-                {"user_id": user_id, "diaries_id": diaries_id}
-            ).mappings().fetchone()
-
+        result = get_result_by_user_and_diary_service(user_id, diaries_id)
         if result is None:
             raise HTTPException(status_code=404, detail="Result not found")
-
-        return GetResultResponse(**result)
-
+        return result
     except HTTPException:
         raise
     except Exception as e:
