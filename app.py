@@ -2,12 +2,14 @@ import sqlalchemy
 from fastapi import FastAPI
 from api.routers import diaries
 from api.routers import questions
+from api.routers import result
 from core.db import engine
 
 app = FastAPI()
 
 app.include_router(diaries.router)
 app.include_router(questions.router)
+app.include_router(result.router)
 
 @app.get("/")
 def root():
