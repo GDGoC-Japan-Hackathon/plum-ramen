@@ -3,6 +3,7 @@ from fastapi import FastAPI
 from api.routers import diaries
 from api.routers import questions
 from api.routers import result
+from api.routers import answers
 from core.db import engine
 
 app = FastAPI()
@@ -10,6 +11,7 @@ app = FastAPI()
 app.include_router(diaries.router)
 app.include_router(questions.router)
 app.include_router(result.router)
+app.include_router(answers.router)
 
 @app.get("/")
 def root():
