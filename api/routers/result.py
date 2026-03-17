@@ -1,5 +1,5 @@
 from fastapi import APIRouter, HTTPException
-from schemas.result import GenerateResultRequest, GenerateResultResponse, InsertResultSummaryRequest, InsertResultSummaryResponse
+from schemas.result import GenerateResultRequest, GenerateResultResponse, InsertResultSummaryRequest, InsertResultSummaryResponse, GetResultResponse
 from functools import lru_cache
 from google import genai
 from google.genai import types
@@ -51,6 +51,30 @@ def save_result(request: InsertResultSummaryRequest):
             raise HTTPException(status_code=400, detail="Failed to insert result summary")
 
         return InsertResultSummaryResponse(**result)
+
+    except HTTPException:
+        raise
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
+
+@router.get("/api/user/{user_id}/{diaries_id}/result", response_model=GetResultResponse)
+def get_result_by_user_and_diaries(user_id: int, diaries_id: int):
+    try:
+        with engine.connect() as conn:
+            result = conn.execute(
+                sqlalchemy.text("""
+                    SELECT results.id, diaries.user_id, results.diaries_id, type, ei_score, sn_score, tf_score, jp_score, summary
+                    FROM results
+                    INNER JOIN diaries ON results.diaries_id = diaries.id
+                    WHERE diaries.user_id = :user_id AND diaries.id = :diaries_id
+                """),
+                {"user_id": user_id, "diaries_id": diaries_id}
+            ).mappings().fetchone()
+
+        if result is None:
+            raise HTTPException(status_code=404, detail="Result not found")
+
+        return GetResultResponse(**result)
 
     except HTTPException:
         raise
