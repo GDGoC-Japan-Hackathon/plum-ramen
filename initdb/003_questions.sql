@@ -6,6 +6,7 @@ CREATE TABLE questions (
     choice_a VARCHAR(255) NOT NULL,
     choice_b VARCHAR(255) NOT NULL,
     choice_c VARCHAR(255) NOT NULL,
+    CONSTRAINT uq_questions_diary_question UNIQUE (diaries_id, question_id),
     FOREIGN KEY (diaries_id) REFERENCES diaries(id)
 );
 
