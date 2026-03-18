@@ -3,6 +3,7 @@ from prompts.generate_result import PROMPT
 from core.gemini import get_gemini_client
 from google.genai import types
 from core.db import engine
+from fastapi import HTTPException
 import sqlalchemy
 import json
 
@@ -22,19 +23,32 @@ def generate_result_service(request: GenerateResultRequest):
         ensure_ascii=False,
         indent=2,
     )
-    
-    answers_text = json.dumps(
-        [
+
+    question_map = {
+        index: question
+        for index, question in enumerate(request.questions.questions, start=1)
+    }
+
+    answer_items = []
+    for answer in request.answers.answers:
+        question = question_map.get(answer.question_id)
+        if question is None:
+            raise HTTPException(status_code=400, detail="Invalid question_id in answers")
+
+        answer_items.append(
             {
-                "question_text": a.question_text,
-                "selected_choice": a.selected_choice,
+                "question_id": answer.question_id,
+                "question_text": question.question_text,
+                "selected_choice": answer.selected_choice,
             }
-            for a in request.answers.answers
-        ],
+        )
+
+    answers_text = json.dumps(
+        answer_items,
         ensure_ascii=False,
         indent=2,
     )
-    
+
     prompt = PROMPT.format(
         diary=diary_text,
         questions=questions_text,
@@ -52,18 +66,32 @@ def generate_result_service(request: GenerateResultRequest):
 
     return response.parsed
 
-def save_result_service(diaries_id: int, request: InsertResultSummaryRequest) -> InsertResultSummaryResponse:
+def save_result_service(user_id: int, diaries_id: int, request: InsertResultSummaryRequest) -> InsertResultSummaryResponse:
     with engine.begin() as conn:
         result = conn.execute(
             sqlalchemy.text("""
                 INSERT INTO results (diaries_id, type, ei_score, sn_score, tf_score, jp_score, summary)
-                VALUES (:diaries_id, :type, :ei_score, :sn_score, :tf_score, :jp_score, :summary)
+                SELECT d.id, :type, :ei_score, :sn_score, :tf_score, :jp_score, :summary
+                FROM diaries d
+                WHERE d.id = :diaries_id AND d.user_id = :user_id
                 RETURNING id, diaries_id, type, ei_score, sn_score, tf_score, jp_score, summary
             """),
-            {"diaries_id": diaries_id, "type": request.type, "ei_score": request.ei_score, "sn_score": request.sn_score, "tf_score": request.tf_score, "jp_score": request.jp_score, "summary": request.summary}
+            {
+                "user_id": user_id,
+                "diaries_id": diaries_id,
+                "type": request.type,
+                "ei_score": request.ei_score,
+                "sn_score": request.sn_score,
+                "tf_score": request.tf_score,
+                "jp_score": request.jp_score,
+                "summary": request.summary,
+            }
         ).mappings().fetchone()
 
-    return InsertResultSummaryResponse(**result) if result else None
+    if result is None:
+        raise HTTPException(status_code=404, detail="Diary not found")
+
+    return InsertResultSummaryResponse(**result)
 
 def get_result_by_user_and_diary_service(user_id: int, diaries_id: int) -> GetResultResponse:
     with engine.connect() as conn:
