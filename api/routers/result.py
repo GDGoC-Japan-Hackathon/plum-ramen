@@ -20,6 +20,8 @@ router = APIRouter()
 def generate_result(request: GenerateResultRequest):
     try:
         return generate_result_service(request)
+    except HTTPException:
+        raise
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
 
@@ -28,9 +30,9 @@ def generate_result(request: GenerateResultRequest):
 # 引数をrequest: InsertResultSummaryRequestからdiaries_id: int, request: InsertResultSummaryRequestに変更
 # service側の引数をrequest: InsertResultSummaryRequestからdiaries_id: int, request: InsertResultSummaryRequestに変更
 @router.post("/api/diaries/{diaries_id}/result", response_model=InsertResultSummaryResponse)
-def save_result(diaries_id: int, request: InsertResultSummaryRequest):
+def save_result(diaries_id: int, request: InsertResultSummaryRequest, current_user: dict = Depends(get_current_user)):
     try:
-        return save_result_service(diaries_id, request)
+        return save_result_service(current_user["user_id"], diaries_id, request)
     except HTTPException:
         raise
     except Exception as e:
