@@ -15,3 +15,11 @@ class GetDiaryResponse(BaseModel):
     user_id: int
     body: str
     created_at: datetime
+
+class PutDiaryRequest(BaseModel):
+    id: int
+    body: str
+    
+class PutDiaryResponse(BaseModel):
+    id: int
+    body: str
