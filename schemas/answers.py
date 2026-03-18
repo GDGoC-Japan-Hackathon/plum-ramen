@@ -2,11 +2,26 @@ from pydantic import BaseModel
 from typing import Optional
 
 class Answer(BaseModel):
-    question_text: str
     selected_choice: str
 
 class InsertAnswerRequest(BaseModel):
-    answers: list[Answer]
+    answer: Answer
+
+class InsertAnswerResponse(BaseModel):
+    id: int
+    diaries_id: int
+    question_id: int
+    selected_choice: str
+
+class Answers(Answer):
+    question_id: int
+
+class InsertAnswersRequest(BaseModel):
+    answers: list[Answers]
+
+class InsertAnswersResponse(BaseModel):
+    diaries_id: int
+    answers: list[InsertAnswerResponse]
 
 class QuestionAnswer(BaseModel):
     question_id: int
