@@ -1,6 +1,8 @@
 from fastapi import APIRouter, HTTPException
 from schemas.questions import GenerateQuestionsRequest, GenerateQuestionsResponse, InsertQuestionsRequest, InsertQuestionsResponse, GetQuestionResponse
 from services.questions import generate_questions_service, insert_questions_service, get_questions_service
+from core.auth import get_current_user
+from fastapi import Depends
 
 # ここに実装するapi
 ## 質問生成
@@ -10,26 +12,35 @@ from services.questions import generate_questions_service, insert_questions_serv
 
 router = APIRouter()
 
-@router.post("/api/questions", response_model=GenerateQuestionsResponse)
+# 変更メモ
+# エンドポイントを/api/questionsから/api/generate/questionsに変更
+@router.post("/api/generate/questions", response_model=GenerateQuestionsResponse)
 def generate_questions(request: GenerateQuestionsRequest):
     try:
         return generate_questions_service(request)
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
 
-@router.post("/api/postquestions", response_model=list[InsertQuestionsResponse])
-def create_question(request: InsertQuestionsRequest):
+# 変更メモ
+# エンドポイントを/api/postquestionsから/api/diaries/{diaries_id}/questionsに変更
+# 引数をrequest: InsertQuestionsRequestからcurrent_user: dict = Depends(get_current_user), diaries_id: int, request: InsertQuestionsRequestに変更
+# current_user["user_id"]を使用するように修正
+@router.post("/api/diaries/{diaries_id}/questions", response_model=list[InsertQuestionsResponse])
+def create_question(diaries_id: int, request: InsertQuestionsRequest, current_user: dict = Depends(get_current_user)):
     try:
-        return insert_questions_service(request)
+        return insert_questions_service(current_user["user_id"], diaries_id, request)
     except HTTPException:
         raise
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
 
+# 変更メモ
+# 引数をdiaries_id: intからcurrent_user: dict = Depends(get_current_user), diaries_id: intに変更
+# current_user["user_id"]を使用するように修正
 @router.get("/api/diaries/{diaries_id}/questions", response_model=list[GetQuestionResponse])
-def get_questions(diaries_id: int):
+def get_questions(diaries_id: int, current_user: dict = Depends(get_current_user)):
     try:
-        return get_questions_service(diaries_id)
+        return get_questions_service(current_user["user_id"], diaries_id)
     except HTTPException:
         raise
     except Exception as e:

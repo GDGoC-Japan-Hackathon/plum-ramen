@@ -3,6 +3,8 @@ from schemas.result import GenerateResultRequest, GenerateResultResponse, Insert
 from services.result import generate_result_service, save_result_service, get_result_by_user_and_diary_service
 import sqlalchemy
 from core.db import engine
+from core.auth import get_current_user
+from fastapi import Depends
 
 # ここに実装するapi
 ## 結果生成
@@ -12,29 +14,35 @@ from core.db import engine
 
 router = APIRouter()
 
-@router.post("/api/result", response_model=GenerateResultResponse)
+# 変更メモ
+# エンドポイントを/api/resultから/api/generate/resultに変更
+@router.post("/api/generate/result", response_model=GenerateResultResponse)
 def generate_result(request: GenerateResultRequest):
     try:
         return generate_result_service(request)
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
 
-@router.post("/api/result/save", response_model=InsertResultSummaryResponse)
-def save_result(request: InsertResultSummaryRequest):
+# 変更メモ
+# エンドポイントを/api/result/saveから/api/diaries/{diaries_id}/resultに変更
+# 引数をrequest: InsertResultSummaryRequestからdiaries_id: int, request: InsertResultSummaryRequestに変更
+# service側の引数をrequest: InsertResultSummaryRequestからdiaries_id: int, request: InsertResultSummaryRequestに変更
+@router.post("/api/diaries/{diaries_id}/result", response_model=InsertResultSummaryResponse)
+def save_result(diaries_id: int, request: InsertResultSummaryRequest):
     try:
-        result = save_result_service(request)
-        if result is None:
-            raise HTTPException(status_code=400, detail="Failed to save result")
-        return result
+        return save_result_service(diaries_id, request)
     except HTTPException:
         raise
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
 
-@router.get("/api/user/{user_id}/{diaries_id}/result", response_model=GetResultResponse)
-def get_result_by_user_and_diaries(user_id: int, diaries_id: int):
+# 変更メモ
+# dependsを使うことで、認証済みユーザーの情報を取得できる
+# エンドポイントを/api/user/{user_id}/{diaries_id}/resultから/api/diaries/{diaries_id}/resultに変更
+@router.get("/api/diaries/{diaries_id}/result", response_model=GetResultResponse)
+def get_result_by_user_and_diaries(diaries_id: int, current_user: dict = Depends(get_current_user)):
     try:
-        result = get_result_by_user_and_diary_service(user_id, diaries_id)
+        result = get_result_by_user_and_diary_service(current_user["user_id"], diaries_id)
         if result is None:
             raise HTTPException(status_code=404, detail="Result not found")
         return result
