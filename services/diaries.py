@@ -1,4 +1,4 @@
-from schemas.diaries import InsertDiaryRequest, InsertDiaryResponse, GetDiaryResponse
+from schemas.diaries import InsertDiaryRequest, InsertDiaryResponse, GetDiaryResponse, PutDiaryRequest, PutDiaryResponse
 from fastapi import HTTPException
 from core.db import engine
 import sqlalchemy
@@ -34,3 +34,32 @@ def get_diaries_service(user_id: int) -> list[GetDiaryResponse]:
             {"user_id": user_id}
         ).mappings().all()
     return [GetDiaryResponse(**row) for row in rows] if rows else []
+
+def update_diary_service(user_id: int, request: PutDiaryRequest) -> PutDiaryResponse:
+    with engine.begin() as conn:
+        diary = conn.execute(
+            sqlalchemy.text("""
+                SELECT id FROM diaries
+                WHERE id = :id AND user_id = :user_id
+            """),
+            {"id": request.id, "user_id": user_id}
+        ).fetchone()
+
+        if diary is None:
+            raise HTTPException(status_code=404, detail="Diary not found or access denied")
+
+        result = conn.execute(
+            sqlalchemy.text("""
+                UPDATE diaries
+                SET body = :body
+                WHERE id = :id AND user_id = :user_id
+                RETURNING id, body
+            """),
+            {
+                "id": request.id,
+                "user_id": user_id,
+                "body": request.body
+            }
+        ).mappings().fetchone()
+
+    return PutDiaryResponse(**result)
