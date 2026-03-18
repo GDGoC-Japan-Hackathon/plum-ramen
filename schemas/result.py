@@ -1,11 +1,11 @@
 from pydantic import BaseModel
 from schemas.questions import GenerateQuestionsRequest, GenerateQuestionsResponse
-from schemas.answers import InsertAnswerRequest
+from schemas.answers import InsertAnswersRequest
 
 class GenerateResultRequest(BaseModel):
     diary: GenerateQuestionsRequest
     questions: GenerateQuestionsResponse
-    answers: InsertAnswerRequest
+    answers: InsertAnswersRequest
 
 class GenerateResultResponse(BaseModel):
     type: str
