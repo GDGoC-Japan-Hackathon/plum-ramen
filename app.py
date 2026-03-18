@@ -1,5 +1,8 @@
 import sqlalchemy
-from fastapi import FastAPI
+from fastapi import FastAPI, Request
+from fastapi.responses import HTMLResponse
+from fastapi.staticfiles import StaticFiles
+from fastapi.templating import Jinja2Templates
 from api.routers import diaries
 from api.routers import questions
 from api.routers import answers
@@ -7,6 +10,8 @@ from api.routers import result
 from core.db import engine
 
 app = FastAPI()
+templates = Jinja2Templates(directory="templates")
+app.mount("/static", StaticFiles(directory="static"), name="static")
 
 app.include_router(diaries.router)
 app.include_router(questions.router)
@@ -14,8 +19,12 @@ app.include_router(answers.router)
 app.include_router(result.router)
 
 @app.get("/")
-def root():
-    return {"message": "Brand New Hello World"}
+def root(request: Request):
+    return templates.TemplateResponse(
+        request=request,
+        name="base.html",
+        context={"page_title": "Brand New Hello World"},
+    )
 
 @app.get("/users")
 def get_users():
