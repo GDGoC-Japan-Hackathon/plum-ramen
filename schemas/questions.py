@@ -34,3 +34,14 @@ class GetQuestionResponse(BaseModel):
     choice_a: str
     choice_b: str
     choice_c: str
+
+class PutQuestionRequest(BaseModel):
+    diaries_id: int
+    question_id: int
+    question_text: str
+    choice_a: str
+    choice_b: str
+    choice_c: str
+
+class PutQuestionResponse(PutQuestionRequest):
+    pass
