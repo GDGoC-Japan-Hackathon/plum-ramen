@@ -1,6 +1,6 @@
 from fastapi import APIRouter, HTTPException
-from schemas.diaries import InsertDiaryRequest, InsertDiaryResponse, GetDiaryResponse
-from services.diaries import create_diary_service, get_diaries_service
+from schemas.diaries import InsertDiaryRequest, InsertDiaryResponse, GetDiaryResponse, PutDiaryRequest, PutDiaryResponse
+from services.diaries import create_diary_service, get_diaries_service, update_diary_service
 from core.auth import get_current_user
 from fastapi import Depends
 
@@ -36,3 +36,16 @@ def get_diaries(current_user: dict = Depends(get_current_user)):
         raise
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
+
+# パスから {id} を削除しました
+@router.put("/api/diaries", response_model=PutDiaryResponse)
+def update_diary(request: PutDiaryRequest, current_user: dict = Depends(get_current_user)):
+    try:
+        # requestの中に id が入っているので、そのままサービスに渡します
+        return update_diary_service(current_user["user_id"], request)
+    except HTTPException:
+        raise
+    except Exception as e:
+        print(f"Error: {e}")
+        raise HTTPException(status_code=500, detail="日記の更新に失敗しました")
+
