@@ -1,4 +1,4 @@
-from schemas.questions import GenerateQuestionsRequest, GenerateQuestionsResponse, InsertQuestionsRequest, InsertQuestionsResponse, GetQuestionResponse
+from schemas.questions import GenerateQuestionsRequest, GenerateQuestionsResponse, InsertQuestionsRequest, InsertQuestionsResponse, GetQuestionResponse, PutQuestionRequest, PutQuestionResponse
 from prompts.generate_questions import PROMPT
 from core.gemini import get_gemini_client
 from google.genai import types
@@ -117,3 +117,47 @@ def get_questions_service(user_id: int, diaries_id: int) -> list[GetQuestionResp
         ).mappings().all()
 
     return [GetQuestionResponse(**row) for row in rows] if rows else []
+
+def update_question_service(user_id: int, request: PutQuestionRequest) -> PutQuestionResponse:
+    with engine.begin() as conn:
+        check = conn.execute(
+            sqlalchemy.text("""
+                SELECT q.question_id
+                FROM questions q
+                JOIN diaries d ON q.diaries_id = d.id
+                WHERE d.user_id = :user_id
+                    AND d.id = :diaries_id
+                    AND q.question_id = :question_id
+            """),
+            {
+                "user_id": user_id, 
+                "diaries_id": request.diaries_id,
+                "question_id": request.question_id
+            }
+        ).fetchone()
+
+        if check is None:
+            raise HTTPException(status_code=404, detail="質問が見つからないか、権限がありません")
+
+        result = conn.execute(
+            sqlalchemy.text("""
+                UPDATE questions
+                SET
+                    question_text = :question_text,
+                    choice_a = :choice_a,
+                    choice_b = :choice_b,
+                    choice_c = :choice_c
+                WHERE diaries_id = :diaries_id AND question_id = :question_id
+                RETURNING diaries_id, question_id, question_text, choice_a, choice_b, choice_c
+            """),
+            {
+                "diaries_id": request.diaries_id,
+                "question_id": request.question_id,
+                "question_text": request.question_text,
+                "choice_a": request.choice_a,
+                "choice_b": request.choice_b,
+                "choice_c": request.choice_c
+            }
+        ).mappings().fetchone()
+
+    return PutQuestionResponse(**result)     
