@@ -4,7 +4,10 @@ from fastapi import HTTPException
 from core.db import engine
 import sqlalchemy
 
-def get_diary_with_questions_service(diaries_id: int) -> GetDiaryWithQuestionResponse:
+# 変更メモ
+# 引数をdiaries_id: intからuser_id: int, diaries_id: intに変更
+# user_idを使用するように修正
+def get_diary_with_questions_service(user_id: int, diaries_id: int) -> GetDiaryWithQuestionResponse:
     with engine.connect() as conn:
         rows = conn.execute(
             sqlalchemy.text("""
@@ -13,10 +16,10 @@ def get_diary_with_questions_service(diaries_id: int) -> GetDiaryWithQuestionRes
                     q.question_id, q.question_text, q.choice_a, q.choice_b, q.choice_c
                 FROM diaries d
                 LEFT JOIN questions q ON d.id = q.diaries_id
-                WHERE d.id = :diary_id
+                WHERE d.id = :diaries_id AND d.user_id = :user_id
                 ORDER BY q.question_id ASC
             """),
-            {"diary_id": diaries_id}
+            {"user_id": user_id, "diaries_id": diaries_id}
         ).mappings().all()
 
     if not rows:
@@ -37,6 +40,6 @@ def get_diary_with_questions_service(diaries_id: int) -> GetDiaryWithQuestionRes
     return GetDiaryWithQuestionResponse(
         id=first_row["id"],
         body=first_row["body"],
-        created_at=str(first_row["created_at"]),
+        created_at=first_row["created_at"],
         questions=questions_list
     )

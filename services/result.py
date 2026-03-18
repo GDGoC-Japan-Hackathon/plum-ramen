@@ -4,12 +4,41 @@ from core.gemini import get_gemini_client
 from google.genai import types
 from core.db import engine
 import sqlalchemy
+import json
 
 def generate_result_service(request: GenerateResultRequest):
+    diary_text = request.diary.diary
+
+    questions_text = json.dumps(
+        [
+            {
+                "question_text": q.question_text,
+                "choice_a": q.choice_a,
+                "choice_b": q.choice_b,
+                "choice_c": q.choice_c,
+            } 
+            for q in request.questions.questions
+        ],
+        ensure_ascii=False,
+        indent=2,
+    )
+    
+    answers_text = json.dumps(
+        [
+            {
+                "question_text": a.question_text,
+                "selected_choice": a.selected_choice,
+            }
+            for a in request.answers.answers
+        ],
+        ensure_ascii=False,
+        indent=2,
+    )
+    
     prompt = PROMPT.format(
-        diary=request.diary,
-        questions=request.questions,
-        answers=request.answers,
+        diary=diary_text,
+        questions=questions_text,
+        answers=answers_text,
     )
 
     response = get_gemini_client().models.generate_content(
@@ -23,7 +52,7 @@ def generate_result_service(request: GenerateResultRequest):
 
     return response.parsed
 
-def save_result_service(request: InsertResultSummaryRequest) -> InsertResultSummaryResponse:
+def save_result_service(diaries_id: int, request: InsertResultSummaryRequest) -> InsertResultSummaryResponse:
     with engine.begin() as conn:
         result = conn.execute(
             sqlalchemy.text("""
@@ -31,7 +60,7 @@ def save_result_service(request: InsertResultSummaryRequest) -> InsertResultSumm
                 VALUES (:diaries_id, :type, :ei_score, :sn_score, :tf_score, :jp_score, :summary)
                 RETURNING id, diaries_id, type, ei_score, sn_score, tf_score, jp_score, summary
             """),
-            {"diaries_id": request.diaries_id, "type": request.type, "ei_score": request.ei_score, "sn_score": request.sn_score, "tf_score": request.tf_score, "jp_score": request.jp_score, "summary": request.summary}
+            {"diaries_id": diaries_id, "type": request.type, "ei_score": request.ei_score, "sn_score": request.sn_score, "tf_score": request.tf_score, "jp_score": request.jp_score, "summary": request.summary}
         ).mappings().fetchone()
 
     return InsertResultSummaryResponse(**result) if result else None
