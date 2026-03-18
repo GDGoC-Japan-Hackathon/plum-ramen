@@ -12,8 +12,9 @@ class GenerateQuestionsRequest(BaseModel):
 class GenerateQuestionsResponse(BaseModel):
     questions: list[Question]
 
+# 変更メモ
+# diaries_idを外す
 class InsertQuestionsRequest(BaseModel):
-    diaries_id: int
     questions: list[Question]
 
 class InsertQuestionsResponse(BaseModel):

@@ -15,9 +15,10 @@ class GenerateResultResponse(BaseModel):
     jp_score: int
     summary: str
 
-
+# 変更メモ
+# diaries_idを外し、passにする
 class InsertResultSummaryRequest(GenerateResultResponse):
-    diaries_id: int
+    pass
 
 class InsertResultSummaryResponse(BaseModel):
     id: int

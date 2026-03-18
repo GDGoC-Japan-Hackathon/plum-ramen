@@ -1,11 +1,8 @@
 from pydantic import BaseModel
 from schemas.questions import Question
-
-class GetDiaryRequest(BaseModel):
-    diaries_id: int
-
+from datetime import datetime
 class GetDiaryWithQuestionResponse(BaseModel):
     id: int
     body: str
-    created_at: str
+    created_at: datetime
     questions: list[Question]

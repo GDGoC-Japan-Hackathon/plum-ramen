@@ -16,10 +16,6 @@ class QuestionAnswer(BaseModel):
     choice_c: str
     selected_choice: Optional[str] = None
 
-class GetDiaryAnswerRequest(BaseModel):
-    user_id: int
-    diaries_id: int
-
 class GetDiaryAnswerResponse(BaseModel):
     user_id: int
     diaries_id: int
