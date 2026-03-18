@@ -1,6 +1,6 @@
 from fastapi import APIRouter, HTTPException
-from schemas.questions import GenerateQuestionsRequest, GenerateQuestionsResponse, InsertQuestionsRequest, InsertQuestionsResponse, GetQuestionResponse
-from services.questions import generate_questions_service, insert_questions_service, get_questions_service
+from schemas.questions import GenerateQuestionsRequest, GenerateQuestionsResponse, InsertQuestionsRequest, InsertQuestionsResponse, GetQuestionResponse,PutQuestionRequest, PutQuestionResponse
+from services.questions import generate_questions_service, insert_questions_service, get_questions_service, update_question_service
 from core.auth import get_current_user
 from fastapi import Depends
 
@@ -45,3 +45,11 @@ def get_questions(diaries_id: int, current_user: dict = Depends(get_current_user
         raise
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
+
+@router.put("/api/diaries/{diaries_id}/questions/{question_id}", response_model=PutQuestionResponse)
+def update_question(request: PutQuestionRequest, current_user: dict =Depends(get_current_user)):
+    try:
+        return update_question_service(current_user["user_id"],request)
+    except HTTPException:
+        print(f"Error: {e}")
+        raise HTTPException(status_code=500, detail="質問の更新に失敗しました")
