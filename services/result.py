@@ -8,7 +8,7 @@ import sqlalchemy
 import json
 
 def generate_result_service(request: GenerateResultRequest):
-    diary_text = request.diary.diary
+    diary_text = request.diary.body
 
     questions_text = json.dumps(
         [
