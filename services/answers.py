@@ -79,7 +79,7 @@ def get_answers_service(user_id: int, diaries_id: int):
         rows = conn.execute(
             sqlalchemy.text("""
                 SELECT 
-                    d.user_id, d.id as diaries_id,
+                    d.id as diaries_id,
                     q.question_id, q.question_text, q.choice_a, q.choice_b, q.choice_c,
                     a.selected_choice
                 FROM diaries d
@@ -106,7 +106,6 @@ def get_answers_service(user_id: int, diaries_id: int):
         ]
 
         return GetDiaryAnswerResponse(
-            user_id=rows[0]["user_id"],
             diaries_id=rows[0]["diaries_id"],
             questions=qa_list
         )
