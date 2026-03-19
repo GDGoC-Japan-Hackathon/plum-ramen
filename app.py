@@ -23,7 +23,85 @@ def root(request: Request):
     return templates.TemplateResponse(
         request=request,
         name="base.html",
-        context={"page_title": "Brand New Hello World"},
+        context={
+            "page_title": "今日の記録",
+            "active_page": "editor",
+        },
+    )
+
+@app.get("/_test_base", response_class=HTMLResponse)
+def test_base_page(request: Request):
+    return templates.TemplateResponse(
+        request=request,
+        name="_test_base.html",
+        context={},
+    )
+@app.get("/_test_list", response_class=HTMLResponse)
+def test_list_page(request: Request):
+    return templates.TemplateResponse(
+        request=request,
+        name="_test_list.html",
+        context={},
+    )
+
+@app.get("/_test_loading", response_class=HTMLResponse)
+def test_loading_page(request: Request):
+    return templates.TemplateResponse(
+        request=request,
+        name="_test_loading.html",
+        context={},
+    )
+
+@app.get("/_test_question", response_class=HTMLResponse)
+def test_questions_page(request: Request):
+    return templates.TemplateResponse(
+        request=request,
+        name="_test_question.html",
+        context={},
+    )
+
+@app.get("/_test_loading_result", response_class=HTMLResponse)
+def test_loading_result_page(request: Request):
+    return templates.TemplateResponse(
+        request=request,
+        name="_test_loading_result.html",
+        context={},
+    )
+
+@app.get("/_test_result", response_class=HTMLResponse)
+def test_result_page(request: Request):
+    return templates.TemplateResponse(
+        request=request,
+        name="_test_result.html",
+        context={},
+    )
+
+@app.get("/diaries", response_class=HTMLResponse)
+def diaries_page(request: Request):
+    return templates.TemplateResponse(
+        request=request,
+        name="diaries.html",
+        context={
+            "page_title": "過去帳",
+            "active_page": "diaries",
+            "main_class": "overflow-hidden",
+        },
+    )
+
+@app.get("/generate-question", response_class=HTMLResponse)
+def generate_question_page(request: Request):
+    return templates.TemplateResponse(
+        request=request,
+        name="generate-question.html",
+        context={},
+    )
+
+@app.get("/questions", response_class=HTMLResponse)
+def questions_page(request: Request):
+    return templates.TemplateResponse(
+        request=request,
+        name="questions.html",
+        context={},
     )
 
 @app.get("/users")
