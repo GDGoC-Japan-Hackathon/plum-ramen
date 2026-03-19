@@ -1,9 +1,8 @@
-CREATE TABLE IF NOT EXISTS users (
-  id SERIAL PRIMARY KEY,
-  name TEXT NOT NULL
+CREATE TABLE IF NOT EXISTS firebase_users (
+    firebase_uid TEXT PRIMARY KEY,
+    user_id BIGINT NOT NULL UNIQUE GENERATED ALWAYS AS IDENTITY,
+    email TEXT,
+    display_name TEXT,
+    created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP
 );
-
-INSERT INTO users (name) VALUES
-  ('Taro'),
-  ('Hanako'),
-  ('Jiro');
