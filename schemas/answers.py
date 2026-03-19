@@ -35,3 +35,11 @@ class GetDiaryAnswerResponse(BaseModel):
     user_id: int
     diaries_id: int
     questions: list[QuestionAnswer]
+
+class PutAnswerRequest(BaseModel):
+    diaries_id: int
+    question_id: int
+    selected_choice: str
+
+class PutAnswerResponse(PutAnswerRequest):
+    pass
