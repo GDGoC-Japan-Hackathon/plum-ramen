@@ -1,0 +1,227 @@
+<body>
+    <main>
+        <div id="loading"></div>
+    </main>
+    <script>
+        const loading = document.getElementById("loading");
+
+        /* 質問生成 */
+        // 日記保存の関数
+        async function saveDiary(diary) {
+            try {
+                const response = await fetch("/api/diaries", {
+                    method: "POST",
+                    headers: {
+                        "Content-Type": "application/json",
+                    },
+                    body: JSON.stringify({ body: diary })
+                });
+                if (!response.ok) {
+                    throw new Error(`failed to save diary: ${response.status}`);
+                }
+
+                return await response.json();
+
+            } catch (error) {
+                console.error(error);
+                return null;
+            }
+        }
+
+        // 質問生成の関数
+        async function generateQuestions(diary) {
+            try {
+                const response = await fetch("/api/generate/questions", {
+                    method: "POST",
+                    headers: {
+                        "Content-Type": "application/json",
+                    },
+                    body: JSON.stringify({ diary: diary })
+                });
+                if (!response.ok) {
+                    throw new Error(`failed to generate questions: ${response.status}`);
+                }
+
+                const result = await response.json();
+                return result.questions;
+            } catch (error) {
+                console.error(error);
+                return null;
+            }
+        }
+
+        async function generateQuestionRun() {
+            try {
+                // セッションストレージから日記本文を取得
+                const diaryBody = sessionStorage.getItem("pending-diary-body");
+
+                // 日記のidを得る
+                const savedDiary = await saveDiary(diaryBody);
+                if (!savedDiary) {
+                    console.error("日記の保存に失敗しました");
+                    alert("日記の保存に失敗しました");
+                    window.location.href = "/diary-form";
+                    return;
+                }
+                const diaryId = savedDiary.id;
+
+                // セッションストレージに日記IDを保存
+                sessionStorage.setItem("pending-diary-id", diaryId);
+
+                // 質問を生成する
+                const questions = await generateQuestions(diaryBody);
+                if (!questions) {
+                    console.error("質問生成に失敗しました");
+                    alert("質問生成に失敗しました");
+                    window.location.href = "/diary-form";
+                    return;
+                }
+
+                // 生成した質問を保存する
+                const response = await fetch(`/api/diaries/${diaryId}/questions`, {
+                    method: "POST",
+                    headers: {
+                        "Content-Type": "application/json",
+                    },
+                    body: JSON.stringify({ questions: questions })
+                });
+                if (!response.ok) {
+                    throw new Error(`failed to save questions: ${response.status}`);
+                }
+
+                const savedQuestions = await response.json();
+                console.log(savedQuestions);
+
+                // セッションストレージから日記本文を削除
+                sessionStorage.removeItem("pending-diary-body");
+
+                // セッションストレージからfrom-page-idを削除
+                sessionStorage.removeItem("from-page-id");
+
+                // 質問ページへ移動
+                window.location.href = `/answer-questions?diary_id=${diaryId}`;
+            } catch (error) {
+                console.error(error);
+                alert("質問保存に失敗しました");
+                // セッションストレージからfrom-page-idを削除
+                sessionStorage.removeItem("from-page-id");
+                // 質問ページへ移動
+                window.location.href = "/diary-form";
+                return;
+            }
+        }
+
+        // 日記、質問、回答を取得する関数
+        async function getDiaryQuestionsAnswers(diaryId) {
+            const endpoint = `/api/diaries/${diaryId}/diary-questions-answers`;
+            try {
+                const response = await fetch(endpoint);
+                if (!response.ok) {
+                    throw new Error(`failed to fetch diary questions answers: ${response.status}`);
+                }
+                return await response.json();
+            } catch (error) {
+                console.error(error);
+                alert("日記、質問、回答の取得に失敗しました");
+                return null;
+            }
+        }
+
+        /* 結果生成 */
+        // 結果を生成する関数
+        async function generateResult(payload) {
+            try {
+                const response = await fetch(`/api/generate/result`, {
+                    method: "POST",
+                    headers: {
+                        "Content-Type": "application/json",
+                    },
+                    body: JSON.stringify(payload),
+                });
+                if (!response.ok) {
+                    throw new Error(`failed to generate result: ${response.status}`);
+                }
+                return await response.json();
+            } catch (error) {
+                console.error(error);
+                alert("結果の生成に失敗しました");
+                return null;
+            }
+        }
+
+        // 生成結果を保存する関数
+        async function saveResult(diaryId, generatedResult) {
+            try {
+                const response = await fetch(`/api/diaries/${diaryId}/result`, {
+                    method: "POST",
+                    headers: {
+                        "Content-Type": "application/json",
+                    },
+                    body: JSON.stringify(generatedResult),
+                });
+                if (!response.ok) {
+                    throw new Error(`failed to save result: ${response.status}`);
+                }
+                return await response.json();
+            } catch (error) {
+                console.error(error);
+                alert("結果の保存に失敗しました");
+                return null;
+            }
+        }
+        
+        async function generateResultRun() {
+            try {
+                // セッションストレージから日記IDを取得
+                const diaryId = sessionStorage.getItem("pending-diary-id");
+                if (!diaryId) {
+                    throw new Error("日記IDが見つかりません");
+                }
+
+                // 日記、質問、回答を取得
+                const resultPayload = await getDiaryQuestionsAnswers(diaryId);
+                if (!resultPayload) {
+                    throw new Error("日記、質問、回答の取得に失敗しました");
+                }
+
+                // 結果を生成
+                const generatedResult = await generateResult(resultPayload);
+                if (!generatedResult) {
+                    throw new Error("結果の生成に失敗しました");
+                }
+
+                // 結果を保存
+                const savedResult = await saveResult(diaryId, generatedResult);
+                if (!savedResult) {
+                    throw new Error("結果の保存に失敗しました");
+                }
+
+                // セッションストレージから日記IDを削除
+                sessionStorage.removeItem("pending-diary-id");
+                
+                // 結果ページへ移動
+                window.location.href = `/display-result?diary_id=${diaryId}`;
+            } catch (error) {
+                console.error(error);
+                alert("診断結果の生成・保存に失敗しました");
+            }
+        }
+
+        async function run() {
+            const fromPageId = sessionStorage.getItem("from-page-id");
+
+            // セッションストレージからfrom-page-idを削除
+            sessionStorage.removeItem("from-page-id");
+
+            if (fromPageId === "diary-form") {
+                loading.innerHTML = "MBTI診断のための質問を生成中...";
+                await generateQuestionRun();
+            } else if (fromPageId === "answer-questions") {
+                loading.innerHTML = "MBTI診断の結果を生成中...";
+                await generateResultRun();
+            }
+        }
+
+        run();
+    </script>
+</body>

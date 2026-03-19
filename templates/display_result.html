@@ -1,0 +1,99 @@
+<body>
+    <style>
+        .result-area {
+            max-width: 720px;
+            margin: 0 auto;
+            text-align: center;
+        }
+        .type-text {
+            font-size: 5rem;
+            font-weight: bold;
+        }
+        .score-area {
+            font-size: 1.5rem;
+            font-weight: bold;
+        }
+        .summary-area {
+            font-size: 1.2rem;
+            font-weight: bold;
+        }
+    </style>
+    <main>
+        <div class="result-area" id="result-area">
+            <h1 class="type-text" id="type-text">INTJ</h1>
+            <div class="score-area" id="score-area">
+                <p>EI: +2</p>
+                <p>SN: +1</p>
+                <p>TF: +1</p>
+                <p>JP: -1</p>
+            </div>
+            <div class="summary-area" id="summary-area">
+                <p>INTJは非常に希少な性格タイプで、人口のわずか数パーセントと言われています。深い洞察力と強い理想主義を持ち、単なる夢想家ではなく、自分の目標を実現し、社会に永続的なポジティブな影響を与えるために具体的な計画を立て、実行する力を持っています。人助けを自らの使命と感じ、不正や不平等に対しては非常に情熱的に立ち向かいます。</p>
+            </div>
+        </div>
+    </main>
+    <footer>
+        hello world
+        <a href="/diary-form">日記作成</a>
+        <a href="/answer-questions">質問回答</a>
+        <a href="/display-result">診断結果表示</a>
+    </footer>
+    <script>
+        const resultAreaElement = document.getElementById("result-area");
+        const typeTextElement = document.getElementById("type-text");
+        const scoreAreaElement = document.getElementById("score-area");
+        const summaryAreaElement = document.getElementById("summary-area");
+        
+
+        async function getResult(diaryId) {
+            try {
+                const response = await fetch(`/api/diaries/${diaryId}/result`);
+                if (!response.ok) {
+                    throw new Error(`failed to get result: ${response.status}`);
+                }
+                return await response.json();
+            } catch (error) {
+                console.error(error);
+                alert("診断結果の取得に失敗しました");
+                return null;
+            }
+        }
+
+        async function run() {
+            try {
+                const diaryId = new URLSearchParams(window.location.search).get("diary_id");
+                if (!diaryId) {
+                    throw new Error("日記IDが見つかりません");
+                }
+
+                // セッションストレージから日記IDを削除
+                sessionStorage.removeItem("pending-diary-id");
+
+                const result = await getResult(diaryId);
+                if (!result) {
+                    throw new Error("診断結果の取得に失敗しました");
+                }
+
+                typeTextElement.innerHTML = `
+                    ${result.type}
+                `;
+
+                scoreAreaElement.innerHTML = `
+                    <p>EI: ${result.ei_score}</p>
+                    <p>SN: ${result.sn_score}</p>
+                    <p>TF: ${result.tf_score}</p>
+                    <p>JP: ${result.jp_score}</p>
+                `;
+
+                summaryAreaElement.innerHTML = `
+                    <p>${result.summary}</p>
+                `;
+            } catch (error) {
+                console.error(error);
+                alert("診断結果の表示に失敗しました");
+            }
+        }
+
+        run();
+    </script>
+</body>

@@ -1,0 +1,152 @@
+<body>
+    <style>
+        .questions-area {
+            max-width: 720px;
+            margin: 0 auto;
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+            padding: 12px;
+        }
+        .question-text {
+            font-size: 1.5rem;
+            font-weight: bold;
+        }
+        .choices-area {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+        .choice {
+            padding: 12px 16px;
+            min-height: 48px;
+        }
+    </style>
+    <main>
+        <div class="questions-area" id="questions-area">
+            <div class="question-text" id="question-text">問題1：あなたはどんな人ですか？</div>
+            <div class="choices-area" id="choices-area">
+                <button class="choice">選択肢A：内向的で慎重な人</button>
+                <button class="choice">選択肢B：外向的で大胆な人</button>
+                <button class="choice">選択肢C：内向的で慎重な人</button>
+            </div>
+        </div>
+    </main>
+    <footer>
+        hello world
+        <a href="/diary-form">日記作成</a>
+        <a href="/answer-questions">質問回答</a>
+        <a href="/display-result">診断結果表示</a>
+    </footer>
+    <script>
+        const questionsAreaElement = document.getElementById("questions-area");
+        const questionTextElement = document.getElementById("question-text");
+        const choicesAreaElement = document.getElementById("choices-area");
+
+        const diaryId = new URLSearchParams(window.location.search).get("diary_id");
+        if (!diaryId) {
+            throw new Error("日記IDが見つかりません");
+        }
+
+        let questions = [];
+        let currentIndex = 0;
+        let answers = {};
+
+        function renderQuestion() {
+            const question = questions[currentIndex];
+
+            questionTextElement.innerHTML = `
+                <div>${question.question_text}</div>
+            `;
+
+            choicesAreaElement.innerHTML = `
+                <button class="choice" id="choiceA">${question.choice_a}</button>
+                <button class="choice" id="choiceB">${question.choice_b}</button>
+                <button class="choice" id="choiceC">${question.choice_c}</button>
+            `;
+
+            document.getElementById("choiceA").addEventListener("click", () => handleAnswerSelect("A"));
+            document.getElementById("choiceB").addEventListener("click", () => handleAnswerSelect("B"));
+            document.getElementById("choiceC").addEventListener("click", () => handleAnswerSelect("C"));
+        }
+
+        function handleAnswerSelect(choiceKey) {
+            const question = questions[currentIndex];
+
+            answers[question.question_id] = choiceKey;
+            sessionStorage.setItem("draft-answers", JSON.stringify(answers));
+
+            if (currentIndex >= questions.length - 1) {
+                submitAnswers();
+                return;
+            }
+
+            nextQuestion();
+        }
+
+        function nextQuestion() {
+            currentIndex += 1;
+            renderQuestion();
+        }
+
+        async function submitAnswers() {
+            const draftAnswers = JSON.parse(sessionStorage.getItem("draft-answers") || "{}");
+
+            // request bodyを作成
+            const payload = {
+                answers: Object.entries(draftAnswers).map(([questionId, choiceKey]) => ({
+                    question_id: Number(questionId),
+                    selected_choice: choiceKey,
+                })),
+            };
+
+            try {
+                const response = await fetch(`/api/diaries/${diaryId}/questions/answers`, {
+                    method: "POST",
+                    headers: {
+                        "Content-Type": "application/json",
+                    },
+                    body: JSON.stringify(payload),
+                });
+                if (!response.ok) {
+                    throw new Error(`failed to submit answers: ${response.status}`);
+                }
+
+                sessionStorage.removeItem("draft-answers");
+                
+                questionsAreaElement.innerHTML = "回答を保存しました。";
+
+                // セッションストレージからfrom-page-idを設定
+                sessionStorage.setItem("from-page-id", "answer-questions");
+                // 結果生成ページへ移動
+                window.location.href = "/generate-loading";
+
+                return await response.json();
+            } catch (error) {
+                console.error(error);
+                alert("回答の保存に失敗しました");
+                return null;
+            }
+        }
+
+        async function loadQuestions() {            
+            try {
+                const response = await fetch(`/api/diaries/${diaryId}/questions`);
+                if (!response.ok) {
+                    throw new Error(`failed to load questions: ${response.status}`);
+                }
+
+                questions = await response.json();
+
+                renderQuestion();
+
+            } catch (error) {
+                console.error(error);
+                alert("質問の読み込みに失敗しました");
+                return null;
+            }
+        }
+
+        loadQuestions();
+    </script>
+</body>
