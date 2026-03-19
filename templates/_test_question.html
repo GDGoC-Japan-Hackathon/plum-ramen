@@ -1,0 +1,111 @@
+<body>
+    <main>
+        <div id="questions"></div>
+    </main>
+    <script>
+        const questionsElement = document.getElementById("questions")
+        const diaryId = new URLSearchParams(window.location.search).get('diary_id');
+        sessionStorage.setItem("pending-diary-id", diaryId);
+        let questions = [];
+        let currentIndex = 0;
+        let answers = {};
+
+        function renderQuestion() {
+            const question = questions[currentIndex];
+
+            questionsElement.innerHTML = `
+                <div>${question.question_text}</div>
+                <button id="choiceA">${question.choice_a}</button>
+                <button id="choiceB">${question.choice_b}</button>
+                <button id="choiceC">${question.choice_c}</button>
+            `;
+
+            document.getElementById("choiceA").addEventListener("click", () =>handleAnswerSelect("A"));
+            document.getElementById("choiceB").addEventListener("click", () => handleAnswerSelect("B"));
+            document.getElementById("choiceC").addEventListener("click", () => handleAnswerSelect("C"));
+        }
+
+        function handleAnswerSelect(choiceKey) {
+            const question = questions[currentIndex];
+
+            answers[question.question_id] = choiceKey;
+            sessionStorage.setItem("draft-answers", JSON.stringify(answers));
+
+            if (currentIndex >= questions.length - 1) {
+                submitAnswers();
+                return;
+            }
+
+            nextQuestion();
+        }
+
+        function nextQuestion() {
+            currentIndex += 1;
+
+            // if (currentIndex >= questions.length) {
+            //     questionsElement.innerHTML = "終わり";
+            //     return;
+            // }
+
+            renderQuestion();
+        }
+
+        async function submitAnswers() {
+            const draftAnswers = JSON.parse(sessionStorage.getItem("draft-answers") || "{}");
+
+            // request bodyを作成
+            const payload = {
+                answers: Object.entries(draftAnswers).map(([questionId, choiceKey]) => ({
+                    question_id: Number(questionId),
+                    selected_choice: choiceKey,
+                })),
+            };
+
+            try {
+                const response = await fetch(`/api/diaries/${diaryId}/questions/answers`, {
+                    method: "POST",
+                    headers: {
+                        "Content-Type": "application/json",
+                    },
+                    body: JSON.stringify(payload),
+                });
+                if (!response.ok) {
+                    throw new Error(`failed to submit answers: ${response.status}`);
+                }
+
+                sessionStorage.removeItem("draft-answers");
+                
+                questionsElement.innerHTML = "回答を保存しました。";
+
+                // 結果生成ページへ移動
+                window.location.href = "/_test_loading_result";
+
+                return await response.json();
+            } catch (error) {
+                console.error(error);
+                alert("回答の保存に失敗しました");
+                return null;
+            }
+        }
+
+        async function loadQuestions() {
+            try {
+                const response = await fetch(`/api/diaries/${diaryId}/questions`);
+                if (!response.ok) {
+                    throw new Error(`failed to load questions: ${response.status}`);
+                }
+
+                questions = await response.json();
+
+                renderQuestion();
+
+            } catch (error) {
+                console.error(error);
+                alert("質問の読み込みに失敗しました");
+                return null;
+            }
+        }
+
+        loadQuestions();
+    </script>
+</body>
