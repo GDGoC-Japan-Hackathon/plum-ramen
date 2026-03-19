@@ -1,0 +1,105 @@
+<body>
+    <main>
+        <div id="loading">MBTI診断のための質問を生成中...</div>
+    </main>
+    <script>
+        const loading = document.getElementById("loading");
+
+        // 日記保存の関数
+        async function saveDiary(diary) {
+            try {
+                const response = await fetch("/api/diaries", {
+                    method: "POST",
+                    headers: {
+                        "Content-Type": "application/json",
+                    },
+                    body: JSON.stringify({ body: diary })
+                });
+                if (!response.ok) {
+                    throw new Error(`failed to save diary: ${response.status}`);
+                }
+
+                return await response.json();
+
+            } catch (error) {
+                console.error(error);
+                return null;
+            }
+        }
+
+        // 質問生成の関数
+        async function generateQuestions(diary) {
+            try {
+                const response = await fetch("/api/generate/questions", {
+                    method: "POST",
+                    headers: {
+                        "Content-Type": "application/json",
+                    },
+                    body: JSON.stringify({ diary: diary })
+                });
+                if (!response.ok) {
+                    throw new Error(`failed to generate questions: ${response.status}`);
+                }
+
+                const result = await response.json();
+                return result.questions;
+            } catch (error) {
+                console.error(error);
+                return null;
+            }
+        }
+
+        async function run() {
+            try {
+                // セッションストレージから日記本文を取得
+                const diaryBody = sessionStorage.getItem("pending-diary-body");
+
+                // 日記のidを得る
+                const savedDiary = await saveDiary(diaryBody);
+                if (!savedDiary) {
+                    console.error("日記の保存に失敗しました");
+                    alert("日記の保存に失敗しました");
+                    window.location.href = "/_test_base";
+                    return;
+                }
+                const diaryId = savedDiary.id;
+
+                // 質問を生成する
+                const questions = await generateQuestions(diaryBody);
+                if (!questions) {
+                    console.error("質問生成に失敗しました");
+                    alert("質問生成に失敗しました");
+                    window.location.href = "/_test_base";
+                    return;
+                }
+
+                // 生成した質問を保存する
+                const response = await fetch(`/api/diaries/${diaryId}/questions`, {
+                    method: "POST",
+                    headers: {
+                        "Content-Type": "application/json",
+                    },
+                    body: JSON.stringify({ questions: questions })
+                });
+                if (!response.ok) {
+                    throw new Error(`failed to save questions: ${response.status}`);
+                }
+
+                const savedQuestions = await response.json();
+                console.log(savedQuestions);
+
+                // セッションストレージから日記本文を削除
+                sessionStorage.removeItem("pending-diary-body");
+
+                // 質問ページへ移動
+                window.location.href = `/_test_question?diary_id=${diaryId}`;
+            } catch (error) {
+                console.error(error);
+                alert("質問保存に失敗しました");
+                window.location.href = "/_test_base";
+                return;
+            }
+        }
+
+        run();
+    </script>
