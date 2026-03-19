@@ -97,7 +97,7 @@ def get_result_by_user_and_diary_service(user_id: int, diaries_id: int) -> GetRe
     with engine.connect() as conn:
         result = conn.execute(
             sqlalchemy.text("""
-                SELECT results.id, diaries.user_id, results.diaries_id, type, ei_score, sn_score, tf_score, jp_score, summary
+                SELECT results.id, results.diaries_id, type, ei_score, sn_score, tf_score, jp_score, summary
                 FROM results
                 INNER JOIN diaries ON results.diaries_id = diaries.id
                 WHERE diaries.user_id = :user_id AND diaries.id = :diaries_id

@@ -32,6 +32,5 @@ class QuestionAnswer(BaseModel):
     selected_choice: Optional[str] = None
 
 class GetDiaryAnswerResponse(BaseModel):
-    user_id: int
     diaries_id: int
     questions: list[QuestionAnswer]
