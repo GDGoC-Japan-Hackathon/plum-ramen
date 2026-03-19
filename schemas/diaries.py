@@ -6,12 +6,10 @@ class InsertDiaryRequest(BaseModel):
 
 class InsertDiaryResponse(BaseModel):
     id: int
-    user_id: int
     body: str
     created_at: datetime
 
 class GetDiaryResponse(BaseModel):
     id: int
-    user_id: int
     body: str
     created_at: datetime
