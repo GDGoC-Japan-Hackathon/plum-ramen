@@ -20,6 +20,38 @@ app.include_router(answers.router)
 app.include_router(result.router)
 app.include_router(common.router)
 
+@app.get("/diary-form", response_class=HTMLResponse)
+def diary_form_page(request: Request):
+    return templates.TemplateResponse(
+        request=request,
+        name="diary_form.html",
+        context={},
+    )
+
+@app.get("/answer-questions", response_class=HTMLResponse)
+def answer_questions_page(request: Request):
+    return templates.TemplateResponse(
+        request=request,
+        name="answer_questions.html",
+        context={},
+    )
+
+@app.get("/display-result", response_class=HTMLResponse)
+def display_result_page(request: Request):
+    return templates.TemplateResponse(
+        request=request,
+        name="display_result.html",
+        context={},
+    )
+
+@app.get("/generate-loading", response_class=HTMLResponse)
+def generate_loading_page(request: Request):
+    return templates.TemplateResponse(
+        request=request,
+        name="generate_loading.html",
+        context={},
+    )
+
 @app.get("/")
 def root(request: Request):
     return templates.TemplateResponse(
@@ -31,50 +63,11 @@ def root(request: Request):
         },
     )
 
-@app.get("/_test_base", response_class=HTMLResponse)
-def test_base_page(request: Request):
-    return templates.TemplateResponse(
-        request=request,
-        name="_test_base.html",
-        context={},
-    )
 @app.get("/_test_list", response_class=HTMLResponse)
 def test_list_page(request: Request):
     return templates.TemplateResponse(
         request=request,
         name="_test_list.html",
-        context={},
-    )
-
-@app.get("/_test_loading", response_class=HTMLResponse)
-def test_loading_page(request: Request):
-    return templates.TemplateResponse(
-        request=request,
-        name="_test_loading.html",
-        context={},
-    )
-
-@app.get("/_test_question", response_class=HTMLResponse)
-def test_questions_page(request: Request):
-    return templates.TemplateResponse(
-        request=request,
-        name="_test_question.html",
-        context={},
-    )
-
-@app.get("/_test_loading_result", response_class=HTMLResponse)
-def test_loading_result_page(request: Request):
-    return templates.TemplateResponse(
-        request=request,
-        name="_test_loading_result.html",
-        context={},
-    )
-
-@app.get("/_test_result", response_class=HTMLResponse)
-def test_result_page(request: Request):
-    return templates.TemplateResponse(
-        request=request,
-        name="_test_result.html",
         context={},
     )
 
