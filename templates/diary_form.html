@@ -1,6 +1,6 @@
 <body>
     <header>
-        Brand new
+        <div id="auth-bar"></div>
     </header>
     <style>
         .diary-page {
@@ -43,22 +43,31 @@
         <a href="/answer-questions">質問回答</a>
         <a href="/display-result">診断結果表示</a>
     </footer>
-    <script>
+    <script src="/firebase-config.js"></script>
+    <script type="module">
+        import { authFetch, mountProtectedPage } from "/static/firebase-auth.js";
+
         const textArea = document.getElementById("text");
         const saveBtn = document.getElementById("saveBtn");
         const analyzeBtn = document.getElementById("analyzeBtn");
-        const loading = document.getElementById("loading")
+        const loading = document.getElementById("loading");
 
-        // loadingページから戻ってきた場合、セッションストレージから日記本文を取得してtextareaに表示
-        const savedBody = sessionStorage.getItem("pending-diary-body");
-        if (savedBody) {
-            textArea.value = savedBody;
+        async function initPage() {
+            const profile = await mountProtectedPage({ authBarId: "auth-bar" });
+            if (!profile) {
+                return;
+            }
+
+            const savedBody = sessionStorage.getItem("pending-diary-body");
+            if (savedBody) {
+                textArea.value = savedBody;
+            }
         }
 
         // 日記保存の関数
         async function saveDiary(diary) {
             try {
-                const response = await fetch("/api/diaries", {
+                const response = await authFetch("/api/diaries", {
                     method: "POST",
                     headers: {
                         "Content-Type": "application/json",
@@ -101,5 +110,7 @@
             sessionStorage.setItem("from-page-id", "diary-form");
             window.location.href = "/generate-loading";
         });
+
+        initPage();
     </script>
 </body>

@@ -1,15 +1,19 @@
 <body>
     <main>
+        <div id="auth-bar"></div>
         <div id="loading"></div>
     </main>
-    <script>
+    <script src="/firebase-config.js"></script>
+    <script type="module">
+        import { authFetch, mountProtectedPage } from "/static/firebase-auth.js";
+
         const loading = document.getElementById("loading");
 
         /* 質問生成 */
         // 日記保存の関数
         async function saveDiary(diary) {
             try {
-                const response = await fetch("/api/diaries", {
+                const response = await authFetch("/api/diaries", {
                     method: "POST",
                     headers: {
                         "Content-Type": "application/json",
@@ -78,7 +82,7 @@
                 }
 
                 // 生成した質問を保存する
-                const response = await fetch(`/api/diaries/${diaryId}/questions`, {
+                const response = await authFetch(`/api/diaries/${diaryId}/questions`, {
                     method: "POST",
                     headers: {
                         "Content-Type": "application/json",
@@ -115,7 +119,7 @@
         async function getDiaryQuestionsAnswers(diaryId) {
             const endpoint = `/api/diaries/${diaryId}/diary-questions-answers`;
             try {
-                const response = await fetch(endpoint);
+                const response = await authFetch(endpoint);
                 if (!response.ok) {
                     throw new Error(`failed to fetch diary questions answers: ${response.status}`);
                 }
@@ -152,7 +156,7 @@
         // 生成結果を保存する関数
         async function saveResult(diaryId, generatedResult) {
             try {
-                const response = await fetch(`/api/diaries/${diaryId}/result`, {
+                const response = await authFetch(`/api/diaries/${diaryId}/result`, {
                     method: "POST",
                     headers: {
                         "Content-Type": "application/json",
@@ -208,6 +212,11 @@
         }
 
         async function run() {
+            const profile = await mountProtectedPage({ authBarId: "auth-bar" });
+            if (!profile) {
+                return;
+            }
+
             const fromPageId = sessionStorage.getItem("from-page-id");
 
             // セッションストレージからfrom-page-idを削除

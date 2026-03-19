@@ -1,5 +1,10 @@
 <body>
     <style>
+        .page-header {
+            max-width: 720px;
+            margin: 0 auto;
+            padding: 12px;
+        }
         .questions-area {
             max-width: 720px;
             margin: 0 auto;
@@ -23,6 +28,7 @@
         }
     </style>
     <main>
+        <div class="page-header" id="auth-bar"></div>
         <div class="questions-area" id="questions-area">
             <div class="question-text" id="question-text">問題1：あなたはどんな人ですか？</div>
             <div class="choices-area" id="choices-area">
@@ -38,7 +44,10 @@
         <a href="/answer-questions">質問回答</a>
         <a href="/display-result">診断結果表示</a>
     </footer>
-    <script>
+    <script src="/firebase-config.js"></script>
+    <script type="module">
+        import { authFetch, mountProtectedPage } from "/static/firebase-auth.js";
+
         const questionsAreaElement = document.getElementById("questions-area");
         const questionTextElement = document.getElementById("question-text");
         const choicesAreaElement = document.getElementById("choices-area");
@@ -101,7 +110,7 @@
             };
 
             try {
-                const response = await fetch(`/api/diaries/${diaryId}/questions/answers`, {
+                const response = await authFetch(`/api/diaries/${diaryId}/questions/answers`, {
                     method: "POST",
                     headers: {
                         "Content-Type": "application/json",
@@ -131,7 +140,7 @@
 
         async function loadQuestions() {            
             try {
-                const response = await fetch(`/api/diaries/${diaryId}/questions`);
+                const response = await authFetch(`/api/diaries/${diaryId}/questions`);
                 if (!response.ok) {
                     throw new Error(`failed to load questions: ${response.status}`);
                 }
@@ -147,6 +156,14 @@
             }
         }
 
-        loadQuestions();
+        async function initPage() {
+            const profile = await mountProtectedPage({ authBarId: "auth-bar" });
+            if (!profile) {
+                return;
+            }
+            await loadQuestions();
+        }
+
+        initPage();
     </script>
 </body>

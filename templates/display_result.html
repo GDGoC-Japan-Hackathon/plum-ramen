@@ -1,5 +1,10 @@
 <body>
     <style>
+        .page-header {
+            max-width: 720px;
+            margin: 0 auto;
+            padding: 12px;
+        }
         .result-area {
             max-width: 720px;
             margin: 0 auto;
@@ -19,6 +24,7 @@
         }
     </style>
     <main>
+        <div class="page-header" id="auth-bar"></div>
         <div class="result-area" id="result-area">
             <h1 class="type-text" id="type-text">INTJ</h1>
             <div class="score-area" id="score-area">
@@ -38,7 +44,10 @@
         <a href="/answer-questions">質問回答</a>
         <a href="/display-result">診断結果表示</a>
     </footer>
-    <script>
+    <script src="/firebase-config.js"></script>
+    <script type="module">
+        import { authFetch, mountProtectedPage } from "/static/firebase-auth.js";
+
         const resultAreaElement = document.getElementById("result-area");
         const typeTextElement = document.getElementById("type-text");
         const scoreAreaElement = document.getElementById("score-area");
@@ -47,7 +56,7 @@
 
         async function getResult(diaryId) {
             try {
-                const response = await fetch(`/api/diaries/${diaryId}/result`);
+                const response = await authFetch(`/api/diaries/${diaryId}/result`);
                 if (!response.ok) {
                     throw new Error(`failed to get result: ${response.status}`);
                 }
@@ -61,6 +70,11 @@
 
         async function run() {
             try {
+                const profile = await mountProtectedPage({ authBarId: "auth-bar" });
+                if (!profile) {
+                    return;
+                }
+
                 const diaryId = new URLSearchParams(window.location.search).get("diary_id");
                 if (!diaryId) {
                     throw new Error("日記IDが見つかりません");
