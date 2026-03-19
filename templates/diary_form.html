@@ -1,0 +1,105 @@
+<body>
+    <header>
+        Brand new
+    </header>
+    <style>
+        .diary-page {
+            padding: 24px;
+        }
+        .diary-form {
+            max-width: 720px;
+            margin: 0 auto;
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+        .diary-textarea {
+            padding: 12px;
+            width: 100%;
+            min-height: 240px;
+        }
+        .button-row {
+            padding-top: 12px;
+            display: flex;
+            gap: 12px;
+        }
+        .action-button {
+            padding: 12px 16px;
+        }
+    </style>
+    <main class="diary-page">
+        <form class="diary-form">
+            <textarea class="diary-textarea" id="text" name="text" rows="5" cols="40"></textarea>
+            <div class="button-row">
+                <button class="action-button" type="button" id="saveBtn">保存</button>
+                <button class="action-button" type="button" id="analyzeBtn">質問生成</button>
+            </div>
+            <div id="loading"></div>
+        </form>
+    </main>
+    <footer>
+        hello world
+        <a href="/diary-form">日記作成</a>
+        <a href="/answer-questions">質問回答</a>
+        <a href="/display-result">診断結果表示</a>
+    </footer>
+    <script>
+        const textArea = document.getElementById("text");
+        const saveBtn = document.getElementById("saveBtn");
+        const analyzeBtn = document.getElementById("analyzeBtn");
+        const loading = document.getElementById("loading")
+
+        // loadingページから戻ってきた場合、セッションストレージから日記本文を取得してtextareaに表示
+        const savedBody = sessionStorage.getItem("pending-diary-body");
+        if (savedBody) {
+            textArea.value = savedBody;
+        }
+
+        // 日記保存の関数
+        async function saveDiary(diary) {
+            try {
+                const response = await fetch("/api/diaries", {
+                    method: "POST",
+                    headers: {
+                        "Content-Type": "application/json",
+                    },
+                    body: JSON.stringify({ body: diary })
+                });
+                if (!response.ok) {
+                    throw new Error(`failed to save diary: ${response.status}`);
+                }
+
+                return await response.json();
+
+            } catch (error) {
+                console.error(error);
+                alert("日記の保存に失敗しました");
+                return null;
+            }
+        }
+
+        // 日記保存のボタンクリックイベント
+        saveBtn.addEventListener("click", async () => {
+            const text = textArea.value;
+            const savedDiary = await saveDiary(text);
+            if (!savedDiary) {
+                console.error("日記の保存に失敗しました");
+                return;
+            }
+            console.log("日記を保存しました");
+            console.log(savedDiary);
+        });
+
+        // 質問生成のボタンクリックイベント（ローディングページへ移動）
+        analyzeBtn.addEventListener("click", async () => {
+            const text = textArea.value;
+            if (text.length === 0) {
+                alert("日記を書いてから質問生成をしてください");
+                return;
+            }
+            sessionStorage.setItem("pending-diary-body", text);
+            sessionStorage.setItem("from-page-id", "diary-form");
+            window.location.href = "/generate-loading";
+        });
+    </script>
+</body>
