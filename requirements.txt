@@ -3,3 +3,4 @@ jinja2
 sqlalchemy
 cloud-sql-python-connector[pg8000]
 google-genai
+firebase-admin
