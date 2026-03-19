@@ -1,0 +1,46 @@
+<body>
+    <main id="result"></main>
+    <script>
+        const diaryId = new URLSearchParams(window.location.search).get("diary_id");
+
+        async function getResult(diaryId) {
+            try {
+                const response = await fetch(`/api/diaries/${diaryId}/result`);
+                if (!response.ok) {
+                    throw new Error(`failed to get result: ${response.status}`);
+                }
+                return await response.json();
+            } catch (error) {
+                console.error(error);
+                alert("診断結果の取得に失敗しました");
+                return null;
+            }
+        }
+
+        async function run() {
+            try {
+                const result = await getResult(diaryId);
+                if (!result) {
+                    throw new Error("診断結果の取得に失敗しました");
+                }
+
+                const resultElement = document.getElementById("result");
+                resultElement.innerHTML = `
+                    <h1>${result.type}</h1>
+                    <div>
+                        <p>EI: ${result.ei_score}</p>
+                        <p>SN: ${result.sn_score}</p>
+                        <p>TF: ${result.tf_score}</p>
+                        <p>JP: ${result.jp_score}</p>
+                    </div>
+                    <p>${result.summary}</p>    
+                `;
+            } catch (error) {
+                console.error(error);
+                alert("診断結果の表示に失敗しました");
+            }
+        }
+
+        run();
+    </script>
+</body>
