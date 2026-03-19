@@ -1,11 +1,15 @@
 from pydantic import BaseModel
 from schemas.questions import GenerateQuestionsRequest, GenerateQuestionsResponse
 from schemas.answers import InsertAnswersRequest
+from schemas.common import GetFullDiaryDataResponse
 
-class GenerateResultRequest(BaseModel):
-    diary: GenerateQuestionsRequest
-    questions: GenerateQuestionsResponse
-    answers: InsertAnswersRequest
+# class GenerateResultRequest(BaseModel):
+#     diary: GenerateQuestionsRequest
+#     questions: GenerateQuestionsResponse
+#     answers: InsertAnswersRequest
+
+class GenerateResultRequest(GetFullDiaryDataResponse):
+    pass
 
 class GenerateResultResponse(BaseModel):
     type: str
