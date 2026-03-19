@@ -9,6 +9,7 @@ services:
       GOOGLE_CLOUD_PROJECT: gdgoc2026
       GOOGLE_CLOUD_LOCATION: asia-northeast1
       GOOGLE_GENAI_USE_VERTEXAI: "true"
+      GOOGLE_APPLICATION_CREDENTIALS: /app/credentials.json
     volumes:
       - .:/app
       - ${HOME}/.config/gcloud:/root/.config/gcloud:ro
