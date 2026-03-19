@@ -78,6 +78,14 @@ def test_result_page(request: Request):
         context={},
     )
 
+@app.get("/_test_diary_list", response_class=HTMLResponse)
+def test_diary_list_page(request: Request):
+    return templates.TemplateResponse(
+        request=request,
+        name="_test_diary_list.html",
+        context={},
+    )
+
 @app.get("/diaries", response_class=HTMLResponse)
 def diaries_page(request: Request):
     return templates.TemplateResponse(
