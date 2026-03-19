@@ -1,128 +1,215 @@
-<body>
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ログイン</title>
     <style>
         body {
             margin: 0;
-            font-family: "Hiragino Sans", "Noto Sans JP", sans-serif;
-            background:
-                radial-gradient(circle at top right, #ffd7c2 0%, transparent 32%),
-                linear-gradient(135deg, #f8f1e7 0%, #f4d3b2 100%);
-            color: #2f241d;
-        }
-        .hero {
             min-height: 100vh;
-            display: grid;
-            place-items: center;
-            padding: 24px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-family: "Hiragino Sans", "Noto Sans JP", sans-serif;
+            background-color: #f9f9f9;
+            color: #333;
         }
-        .panel {
-            width: min(640px, 100%);
-            padding: 32px;
-            border-radius: 24px;
-            background: rgba(255, 250, 244, 0.9);
-            box-shadow: 0 20px 60px rgba(85, 53, 24, 0.15);
+
+        .login-card {
+            background: #fff;
+            width: 100%;
+            max-width: 320px;
+            padding: 40px 24px;
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.08);
+            text-align: center;
         }
-        .eyebrow {
-            margin: 0 0 12px;
-            font-size: 0.9rem;
-            letter-spacing: 0.08em;
-            text-transform: uppercase;
+
+        h1 {
+            margin: 0 0 24px;
+            font-size: 1.4rem;
+            font-weight: normal;
         }
-        .title {
-            margin: 0;
-            font-size: clamp(2rem, 5vw, 3.5rem);
-            line-height: 1.05;
-        }
-        .lead {
-            margin: 16px 0 24px;
-            font-size: 1rem;
-            line-height: 1.8;
-        }
+
         .primary-button {
-            border: 0;
-            border-radius: 999px;
-            padding: 14px 20px;
-            font-size: 1rem;
-            font-weight: bold;
-            background: #1f6d4f;
-            color: white;
-            cursor: pointer;
-        }
-        .status {
-            min-height: 24px;
-            margin-top: 16px;
+            width: 100%;
+            border: 1px solid #dadce0;
+            background: #fff;
+            color: #3c4043;
+            border-radius: 4px;
+            padding: 10px 16px;
             font-size: 0.95rem;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 12px;
+            transition: background 0.2s;
         }
-        .steps {
-            margin-top: 24px;
-            padding-left: 18px;
-            line-height: 1.7;
+
+        .primary-button:hover:not(:disabled) {
+            background: #f1f3f4;
+        }
+
+        .primary-button:disabled {
+            cursor: not-allowed;
+            opacity: 0.6;
+        }
+
+        .button-icon {
+            width: 18px;
+            height: 18px;
+        }
+
+        .status {
+            margin-top: 16px;
+            font-size: 0.85rem;
+            color: #666;
+            min-height: 40px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            text-align: center;
+            line-height: 1.6;
+        }
+
+        .status[data-tone="error"] {
+            color: #d32f2f;
+        }
+
+        .status[data-tone="success"] {
+            color: #2e7d32;
         }
     </style>
-    <main class="hero">
-        <section class="panel">
-            <p class="eyebrow">Plum Ramen</p>
-            <h1 class="title">Firebase Auth で<br>ログインして始める</h1>
-            <p class="lead">
-                このアプリは Google ログインで本人確認し、ブラウザで取得した Firebase ID token を FastAPI に送って API 側でも検証します。
-            </p>
-            <button class="primary-button" id="sign-in-button" type="button">Google でログイン</button>
-            <div class="status" id="status"></div>
-            <ol class="steps">
-                <li>ブラウザで Firebase Auth にログインします。</li>
-                <li>ブラウザが ID token を受け取ります。</li>
-                <li>FastAPI が token を検証して、アプリ内の user_id と結びつけます。</li>
-            </ol>
-        </section>
+</head>
+<body>
+    <main class="login-card">
+        <h1>ログイン</h1>
+        <div class="signin-box">
+            <button class="primary-button" id="sign-in-button" type="button" disabled>
+                <svg class="button-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 48 48" aria-hidden="true">
+                    <path fill="#FFC107" d="M43.611,20.083H42V20H24v8h11.303c-1.649,4.657-6.08,8-11.303,8c-6.627,0-12-5.373-12-12c0-6.627,5.373-12,12-12c3.059,0,5.842,1.154,7.961,3.039l5.657-5.657C34.046,6.053,29.268,4,24,4C12.955,4,4,12.955,4,24c0,11.045,8.955,20,20,20c11.045,0,20-8.955,20-20C44,22.659,43.862,21.35,43.611,20.083z"/>
+                    <path fill="#FF3D00" d="M6.306,14.691l6.571,4.819C14.655,15.108,18.961,12,24,12c3.059,0,5.842,1.154,7.961,3.039l5.657-5.657C34.046,6.053,29.268,4,24,4C16.318,4,9.656,8.337,6.306,14.691z"/>
+                    <path fill="#4CAF50" d="M24,44c5.166,0,9.86-1.977,13.409-5.192l-6.19-5.238C29.211,35.091,26.715,36,24,36c-5.202,0-9.619-3.317-11.283-7.946l-6.522,5.025C9.505,39.556,16.227,44,24,44z"/>
+                    <path fill="#1976D2" d="M43.611,20.083H42V20H24v8h11.303c-0.792,2.237-2.231,4.166-4.087,5.571c0.001-0.001,0.002-0.001,0.003-0.002l6.19,5.238C36.971,39.205,44,34,44,24C44,22.659,43.862,21.35,43.611,20.083z"/>
+                </svg>
+                <span id="button-label">準備中...</span>
+            </button>
+            <div class="status" id="status">確認しています...</div>
+        </div>
     </main>
+
     <script src="/firebase-config.js"></script>
     <script type="module">
-        import { authFetch, signInWithGoogle, signOutUser, waitForAuthState } from "/static/firebase-auth.js";
-
         const signInButton = document.getElementById("sign-in-button");
+        const buttonLabel = document.getElementById("button-label");
         const statusElement = document.getElementById("status");
 
-        function showStatus(message) {
+        function showStatus(message, tone = "neutral") {
             statusElement.textContent = message;
-        }
-
-        async function tryRestoreSession() {
-            const firebaseUser = await waitForAuthState();
-            if (!firebaseUser) {
+            if (tone === "neutral") {
+                statusElement.removeAttribute("data-tone");
                 return;
             }
-
-            showStatus("ログイン状態を確認しています...");
-
-            const response = await authFetch("/api/me");
-            if (response.ok) {
-                window.location.href = "/diary-form";
-                return;
-            }
-
-            await signOutUser();
-            showStatus("サーバー側の認証に失敗しました。設定を確認して再度ログインしてください。");
+            statusElement.dataset.tone = tone;
         }
 
-        signInButton.addEventListener("click", async () => {
-            showStatus("Google ログインを開始します...");
+        function setButtonState({ disabled, label }) {
+            signInButton.disabled = disabled;
+            buttonLabel.textContent = label;
+        }
 
+        function getFriendlyErrorMessage(error) {
+            const message = String(error?.message || "");
+            if (message.includes("Firebase config is missing")) {
+                return "Cloud Run の Firebase 環境変数が不足しています。FIREBASE_API_KEY と FIREBASE_APP_ID を確認してください。";
+            }
+            if (message.includes("auth/unauthorized-domain")) {
+                return "このドメインは Firebase Authentication の Authorized domains に未登録です。";
+            }
+            if (message.includes("auth/popup-blocked")) {
+                return "ポップアップがブロックされました。ブラウザ設定を確認して再試行してください。";
+            }
+            if (message.includes("auth/popup-closed-by-user")) {
+                return "ログイン用のポップアップが途中で閉じられました。もう一度試してください。";
+            }
+            if (message.includes("Failed to fetch dynamically imported module")) {
+                return "Firebase SDK の読み込みに失敗しました。ネットワークか CSP 設定を確認してください。";
+            }
+            return "ログインに失敗しました。Firebase 設定と Authorized domains を確認してください。";
+        }
+
+        async function boot() {
+            showStatus("認証モジュールを読み込んでいます。");
+            setButtonState({ disabled: true, label: "認証を準備しています..." });
+
+            let authModule;
             try {
-                await signInWithGoogle();
-
-                const response = await authFetch("/api/me");
-                if (!response.ok) {
-                    const errorText = await response.text();
-                    throw new Error(errorText);
-                }
-
-                window.location.href = "/diary-form";
+                authModule = await import("/static/firebase-auth.js");
             } catch (error) {
                 console.error(error);
-                await signOutUser();
-                showStatus("ログインに失敗しました。Firebase 設定と Authorized domains を確認してください。");
+                showStatus(getFriendlyErrorMessage(error), "error");
+                setButtonState({ disabled: true, label: "設定エラー" });
+                return;
             }
-        });
 
-        tryRestoreSession();
+            const {
+                authFetch,
+                signInWithGoogle,
+                signOutUser,
+                waitForAuthState,
+            } = authModule;
+
+            async function tryRestoreSession() {
+                const firebaseUser = await waitForAuthState();
+                if (!firebaseUser) {
+                    showStatus("認証の準備ができました。Google アカウントでログインしてください。", "success");
+                    setButtonState({ disabled: false, label: "Google でログイン" });
+                    return;
+                }
+
+                showStatus("ログイン状態を確認しています...");
+
+                const response = await authFetch("/api/me");
+                if (response.ok) {
+                    showStatus("ログイン済みです。日記画面へ移動します。", "success");
+                    window.location.href = "/diary-form";
+                    return;
+                }
+
+                await signOutUser();
+                showStatus("サーバー側の認証に失敗しました。設定を確認して再度ログインしてください。", "error");
+                setButtonState({ disabled: false, label: "Google でログイン" });
+            }
+
+            signInButton.addEventListener("click", async () => {
+                showStatus("Google ログインを開始します...");
+                setButtonState({ disabled: true, label: "ログイン中..." });
+
+                try {
+                    await signInWithGoogle();
+
+                    const response = await authFetch("/api/me");
+                    if (!response.ok) {
+                        const errorText = await response.text();
+                        throw new Error(errorText);
+                    }
+
+                    showStatus("認証に成功しました。日記画面へ移動します。", "success");
+                    window.location.href = "/diary-form";
+                } catch (error) {
+                    console.error(error);
+                    await signOutUser();
+                    showStatus(getFriendlyErrorMessage(error), "error");
+                    setButtonState({ disabled: false, label: "Google でログイン" });
+                }
+            });
+
+            await tryRestoreSession();
+        }
+
+        boot();
     </script>
 </body>
+</html>
