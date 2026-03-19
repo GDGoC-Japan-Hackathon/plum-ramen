@@ -36,7 +36,6 @@ class InsertResultSummaryResponse(BaseModel):
 
 class GetResultResponse(BaseModel):
     id: int
-    user_id: int
     diaries_id: int
     type: str
     ei_score: int
