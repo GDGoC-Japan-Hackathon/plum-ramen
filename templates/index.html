@@ -1,0 +1,128 @@
+<body>
+    <style>
+        body {
+            margin: 0;
+            font-family: "Hiragino Sans", "Noto Sans JP", sans-serif;
+            background:
+                radial-gradient(circle at top right, #ffd7c2 0%, transparent 32%),
+                linear-gradient(135deg, #f8f1e7 0%, #f4d3b2 100%);
+            color: #2f241d;
+        }
+        .hero {
+            min-height: 100vh;
+            display: grid;
+            place-items: center;
+            padding: 24px;
+        }
+        .panel {
+            width: min(640px, 100%);
+            padding: 32px;
+            border-radius: 24px;
+            background: rgba(255, 250, 244, 0.9);
+            box-shadow: 0 20px 60px rgba(85, 53, 24, 0.15);
+        }
+        .eyebrow {
+            margin: 0 0 12px;
+            font-size: 0.9rem;
+            letter-spacing: 0.08em;
+            text-transform: uppercase;
+        }
+        .title {
+            margin: 0;
+            font-size: clamp(2rem, 5vw, 3.5rem);
+            line-height: 1.05;
+        }
+        .lead {
+            margin: 16px 0 24px;
+            font-size: 1rem;
+            line-height: 1.8;
+        }
+        .primary-button {
+            border: 0;
+            border-radius: 999px;
+            padding: 14px 20px;
+            font-size: 1rem;
+            font-weight: bold;
+            background: #1f6d4f;
+            color: white;
+            cursor: pointer;
+        }
+        .status {
+            min-height: 24px;
+            margin-top: 16px;
+            font-size: 0.95rem;
+        }
+        .steps {
+            margin-top: 24px;
+            padding-left: 18px;
+            line-height: 1.7;
+        }
+    </style>
+    <main class="hero">
+        <section class="panel">
+            <p class="eyebrow">Plum Ramen</p>
+            <h1 class="title">Firebase Auth で<br>ログインして始める</h1>
+            <p class="lead">
+                このアプリは Google ログインで本人確認し、ブラウザで取得した Firebase ID token を FastAPI に送って API 側でも検証します。
+            </p>
+            <button class="primary-button" id="sign-in-button" type="button">Google でログイン</button>
+            <div class="status" id="status"></div>
+            <ol class="steps">
+                <li>ブラウザで Firebase Auth にログインします。</li>
+                <li>ブラウザが ID token を受け取ります。</li>
+                <li>FastAPI が token を検証して、アプリ内の user_id と結びつけます。</li>
+            </ol>
+        </section>
+    </main>
+    <script src="/firebase-config.js"></script>
+    <script type="module">
+        import { authFetch, signInWithGoogle, signOutUser, waitForAuthState } from "/static/firebase-auth.js";
+
+        const signInButton = document.getElementById("sign-in-button");
+        const statusElement = document.getElementById("status");
+
+        function showStatus(message) {
+            statusElement.textContent = message;
+        }
+
+        async function tryRestoreSession() {
+            const firebaseUser = await waitForAuthState();
+            if (!firebaseUser) {
+                return;
+            }
+
+            showStatus("ログイン状態を確認しています...");
+
+            const response = await authFetch("/api/me");
+            if (response.ok) {
+                window.location.href = "/diary-form";
+                return;
+            }
+
+            await signOutUser();
+            showStatus("サーバー側の認証に失敗しました。設定を確認して再度ログインしてください。");
+        }
+
+        signInButton.addEventListener("click", async () => {
+            showStatus("Google ログインを開始します...");
+
+            try {
+                await signInWithGoogle();
+
+                const response = await authFetch("/api/me");
+                if (!response.ok) {
+                    const errorText = await response.text();
+                    throw new Error(errorText);
+                }
+
+                window.location.href = "/diary-form";
+            } catch (error) {
+                console.error(error);
+                await signOutUser();
+                showStatus("ログインに失敗しました。Firebase 設定と Authorized domains を確認してください。");
+            }
+        });
+
+        tryRestoreSession();
+    </script>
+</body>
