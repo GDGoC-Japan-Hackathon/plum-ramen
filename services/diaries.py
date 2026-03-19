@@ -12,7 +12,7 @@ def create_diary_service(user_id: int, request: InsertDiaryRequest) -> InsertDia
             sqlalchemy.text("""
                 INSERT INTO diaries (user_id, body)
                 VALUES (:user_id, :body)
-                RETURNING id, user_id, body, created_at
+                RETURNING id, body, created_at
             """),
             {"user_id": user_id, "body": request.body}
         ).mappings().fetchone()
@@ -26,7 +26,7 @@ def get_diaries_service(user_id: int) -> list[GetDiaryResponse]:
     with engine.connect() as conn:
         rows = conn.execute(
             sqlalchemy.text("""
-                SELECT id, user_id, body, created_at
+                SELECT id, body, created_at
                 FROM diaries
                 WHERE user_id = :user_id
                 ORDER BY created_at DESC
