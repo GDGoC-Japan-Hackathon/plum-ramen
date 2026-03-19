@@ -1,7 +1,7 @@
 from fastapi import HTTPException
 from core.db import engine
 import sqlalchemy
-from schemas.answers import QuestionAnswer, GetDiaryAnswerResponse, InsertAnswerRequest, InsertAnswerResponse, InsertAnswersRequest, InsertAnswersResponse
+from schemas.answers import QuestionAnswer, GetDiaryAnswerResponse, InsertAnswerRequest, InsertAnswerResponse, InsertAnswersRequest, InsertAnswersResponse, PutAnswerRequest, PutAnswerResponse
 
 def insert_answers_service(user_id: int, diaries_id: int, question_id: int, request: InsertAnswerRequest):
     # 日記が存在するか確認
@@ -111,3 +111,34 @@ def get_answers_service(user_id: int, diaries_id: int):
             questions=qa_list
         )
     
+def update_answer_service(user_id: int, request: PutAnswerRequest) -> PutAnswerResponse:
+    with engine.begin() as conn:
+        diary_check = conn.execute(
+            sqlalchemy.text("""
+                SELECT id FROM diaries
+                WHERE id = :diaries_id AND user_id = :user_id
+            """),
+            {"diaries_id": request.diaries_id, "user_id": user_id}
+        ).fetchone()
+
+        if diary_check is None:
+            raise HTTPException(status_code=404, detail="日記が存在しない、または他人の日記の場合はエラー")
+        
+        result = conn.execute(
+            sqlalchemy.text("""
+                UPDATE answers
+                SET selected_choice = :selected_choice
+                WHERE diaries_id = :diaries_id AND question_id = :question_id
+                RETURNING diaries_id, question_id, selected_choice
+            """),
+            {
+                "diaries_id": request.diaries_id,
+                "question_id": request.question_id,
+                "selected_choice": request.selected_choice
+            }
+        ).mappings().fetchone()
+    
+    if result is None:
+        raise HTTPException(status_code=404, detail="該当する回答レコードが見つかりません")
+
+    return PutAnswerResponse(**result)
