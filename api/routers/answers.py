@@ -3,8 +3,8 @@ from fastapi import Depends
 from schemas.answers import GetDiaryAnswerResponse
 from services.answers import get_answers_service
 from core.auth import get_current_user
-from schemas.answers import InsertAnswerRequest, InsertAnswerResponse, InsertAnswersRequest, InsertAnswersResponse
-from services.answers import insert_answers_service, insert_answers_bulk_service
+from schemas.answers import InsertAnswerRequest, InsertAnswerResponse, InsertAnswersRequest, InsertAnswersResponse, PutAnswerRequest, PutAnswerResponse
+from services.answers import insert_answers_service, insert_answers_bulk_service, update_answer_service
 
 router = APIRouter()
 
@@ -38,3 +38,13 @@ def get_answers(diaries_id: int, current_user: dict = Depends(get_current_user))
         raise
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
+
+@router.put("/api/diaries/{diaries_id}/questions/{question_id}/answer", response_model=PutAnswerResponse)
+def update_answer(request: PutAnswerRequest, current_user:dict = Depends(get_current_user)):
+    try:
+        return update_answer_service(current_user["user_id"], request)
+    except HTTPException:
+        raise
+    except Exception as e:
+        print(f"Error: {e}")
+        raise HTTPException(status_code=500, detail="回答の更新に失敗しました")
