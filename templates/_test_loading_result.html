@@ -1,0 +1,100 @@
+<body>
+    <main id="loading">診断結果を生成中...</main>
+    <script>
+        const loading = document.getElementById("loading");
+
+        // 日記、質問、回答を取得する関数
+        async function getDiaryQuestionsAnswers(diaryId) {
+            const endpoint = `/api/diaries/${diaryId}/diary-questions-answers`;
+            try {
+                const response = await fetch(endpoint);
+                if (!response.ok) {
+                    throw new Error(`failed to fetch diary questions answers: ${response.status}`);
+                }
+                return await response.json();
+            } catch (error) {
+                console.error(error);
+                alert("日記、質問、回答の取得に失敗しました");
+                return null;
+            }
+        }
+
+        // 結果を生成する関数
+        async function generateResult(payload) {
+            try {
+                const response = await fetch(`/api/generate/result`, {
+                    method: "POST",
+                    headers: {
+                        "Content-Type": "application/json",
+                    },
+                    body: JSON.stringify(payload),
+                });
+                if (!response.ok) {
+                    throw new Error(`failed to generate result: ${response.status}`);
+                }
+                return await response.json();
+            } catch (error) {
+                console.error(error);
+                alert("結果の生成に失敗しました");
+                return null;
+            }
+        }
+
+        // 生成結果を保存する関数
+        async function saveResult(diaryId, generatedResult) {
+            try {
+                const response = await fetch(`/api/diaries/${diaryId}/result`, {
+                    method: "POST",
+                    headers: {
+                        "Content-Type": "application/json",
+                    },
+                    body: JSON.stringify(generatedResult),
+                });
+                if (!response.ok) {
+                    throw new Error(`failed to save result: ${response.status}`);
+                }
+                return await response.json();
+            } catch (error) {
+                console.error(error);
+                alert("結果の保存に失敗しました");
+                return null;
+            }
+        }
+        
+        async function run() {
+            try {
+                // セッションストレージから日記IDを取得
+                const diaryId = sessionStorage.getItem("pending-diary-id");
+                if (!diaryId) {
+                    throw new Error("日記IDが見つかりません");
+                }
+
+                // 日記、質問、回答を取得
+                const resultPayload = await getDiaryQuestionsAnswers(diaryId);
+                if (!resultPayload) {
+                    throw new Error("日記、質問、回答の取得に失敗しました");
+                }
+
+                // 結果を生成
+                const generatedResult = await generateResult(resultPayload);
+                if (!generatedResult) {
+                    throw new Error("結果の生成に失敗しました");
+                }
+
+                // 結果を保存
+                const savedResult = await saveResult(diaryId, generatedResult);
+                if (!savedResult) {
+                    throw new Error("結果の保存に失敗しました");
+                }
+                
+                // 結果ページへ移動
+                window.location.href = `/_test_result?diary_id=${diaryId}`;
+            } catch (error) {
+                console.error(error);
+                alert("診断結果の生成・保存に失敗しました");
+            }
+        }
+
+        run();
+    </script>
+</body>
