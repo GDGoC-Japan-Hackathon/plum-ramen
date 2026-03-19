@@ -43,7 +43,11 @@
         <a href="/answer-questions">質問回答</a>
         <a href="/display-result">診断結果表示</a>
     </footer>
-    <script>
+    <script type="module">
+        import { requireLogin, getIdToken } from "/static/firebase-auth.js";
+
+        requireLogin();
+
         const textArea = document.getElementById("text");
         const saveBtn = document.getElementById("saveBtn");
         const analyzeBtn = document.getElementById("analyzeBtn");
@@ -57,11 +61,16 @@
 
         // 日記保存の関数
         async function saveDiary(diary) {
+
+            // Bearerトークン取得(1時間の有効期限)
+            const idToken = await getIdToken();
+
             try {
                 const response = await fetch("/api/diaries", {
                     method: "POST",
                     headers: {
                         "Content-Type": "application/json",
+                        "Authorization": `Bearer ${idToken}`,
                     },
                     body: JSON.stringify({ body: diary })
                 });

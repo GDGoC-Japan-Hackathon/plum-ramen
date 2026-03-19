@@ -38,7 +38,11 @@
         <a href="/answer-questions">質問回答</a>
         <a href="/display-result">診断結果表示</a>
     </footer>
-    <script>
+    <script type="module">
+        import { requireLogin, getIdToken } from "/static/firebase-auth.js";
+
+        requireLogin();
+
         const questionsAreaElement = document.getElementById("questions-area");
         const questionTextElement = document.getElementById("question-text");
         const choicesAreaElement = document.getElementById("choices-area");
@@ -101,10 +105,14 @@
             };
 
             try {
+                // Bearerトークン取得(1時間の有効期限)
+                const idToken = await getIdToken();
+
                 const response = await fetch(`/api/diaries/${diaryId}/questions/answers`, {
                     method: "POST",
                     headers: {
                         "Content-Type": "application/json",
+                        "Authorization": `Bearer ${idToken}`,
                     },
                     body: JSON.stringify(payload),
                 });
@@ -131,7 +139,14 @@
 
         async function loadQuestions() {            
             try {
-                const response = await fetch(`/api/diaries/${diaryId}/questions`);
+                // Bearerトークン取得(1時間の有効期限)
+                const idToken = await getIdToken();
+
+                const response = await fetch(`/api/diaries/${diaryId}/questions`, {
+                    headers: {
+                        "Authorization": `Bearer ${idToken}`,
+                    },
+                });
                 if (!response.ok) {
                     throw new Error(`failed to load questions: ${response.status}`);
                 }

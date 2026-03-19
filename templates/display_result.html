@@ -38,7 +38,11 @@
         <a href="/answer-questions">質問回答</a>
         <a href="/display-result">診断結果表示</a>
     </footer>
-    <script>
+    <script type="module">
+        import { requireLogin, getIdToken } from "/static/firebase-auth.js";
+
+        requireLogin();
+
         const resultAreaElement = document.getElementById("result-area");
         const typeTextElement = document.getElementById("type-text");
         const scoreAreaElement = document.getElementById("score-area");
@@ -47,7 +51,14 @@
 
         async function getResult(diaryId) {
             try {
-                const response = await fetch(`/api/diaries/${diaryId}/result`);
+                // Bearerトークン取得(1時間の有効期限)
+                const idToken = await getIdToken();
+
+                const response = await fetch(`/api/diaries/${diaryId}/result`, {
+                    headers: {
+                        "Authorization": `Bearer ${idToken}`,
+                    },
+                });
                 if (!response.ok) {
                     throw new Error(`failed to get result: ${response.status}`);
                 }
