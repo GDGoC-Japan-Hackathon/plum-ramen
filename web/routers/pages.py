@@ -9,14 +9,7 @@ router.mount("/static", StaticFiles(directory="static"), name="static")
 
 @router.get("/")
 def root(request: Request):
-    return templates.TemplateResponse(
-        request=request,
-        name="base.html",
-        context={
-            "page_title": "今日の記録",
-            "active_page": "editor",
-        },
-    )
+    return {"message": "Brand New Hello World"}
 
 @router.get("/_test_list", response_class=HTMLResponse)
 def test_list_page(request: Request):
