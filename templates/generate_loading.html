@@ -1,47 +1,152 @@
-<body>
-    <main>
-        <div id="loading"></div>
-    </main>
-    <script>
-        const loading = document.getElementById("loading");
+<!DOCTYPE html>
+<html class="light" lang="ja">
 
-        /* 質問生成 */
+<head>
+    <meta charset="utf-8" />
+    <meta content="width=device-width, initial-scale=1.0" name="viewport" />
+    <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Epilogue:wght@300;400;500;600;700&display=swap"
+        rel="stylesheet" />
+    <script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    colors: {
+                        "primary": "#8B0029", // 深紅梅
+                        "secondary": "#FFB7C5", // 桜ピンク
+                        "background-light": "#FFF9FB",
+                    },
+                    keyframes: {
+                        'flow': {
+                            '0%': { 'background-position': '200% 0' },
+                            '100%': { 'background-position': '-200% 0' }
+                        },
+                        'bloom': {
+                            '0%': { transform: 'scale(0.8) rotate(0deg)', opacity: '0.3' },
+                            '50%': { transform: 'scale(1.1) rotate(180deg)', opacity: '1' },
+                            '100%': { transform: 'scale(0.8) rotate(360deg)', opacity: '0.3' },
+                        },
+                        'float': {
+                            '0%, 100%': { transform: 'translateY(0)' },
+                            '50%': { transform: 'translateY(-10px)' },
+                        },
+                        'shimmer': {
+                            '0%': { opacity: '0.4' },
+                            '50%': { opacity: '0.8' },
+                            '100%': { opacity: '0.4' }
+                        }
+                    },
+                    animation: {
+                        'loading-flow': 'flow 2s linear infinite',
+                        'bloom-slow': 'bloom 4s cubic-bezier(0.4, 0, 0.2, 1) infinite',
+                        'float-slow': 'float 6s ease-in-out infinite',
+                        'pulse-gentle': 'shimmer 3s ease-in-out infinite',
+                    }
+                },
+            },
+        }
+    </script>
+    <style>
+        body {
+            font-family: "Epilogue", "Noto Sans JP", sans-serif;
+        }
+
+        .ume-gradient {
+            background: radial-gradient(circle, rgba(255, 183, 197, 0.15) 0%, rgba(255, 249, 251, 0) 70%);
+        }
+    </style>
+</head>
+
+<body class="bg-background-light text-slate-900 min-h-screen">
+    <div class="relative flex min-h-screen w-full flex-col overflow-x-hidden">
+
+        <main class="flex flex-1 flex-col items-center justify-center px-4 py-8 relative">
+            <div class="w-full max-w-lg flex flex-col items-center gap-12 text-center">
+
+                <div class="relative flex items-center justify-center w-48 h-48 md:w-64 md:h-64">
+                    <div class="absolute inset-0 ume-gradient animate-pulse-gentle"></div>
+                    <div class="relative z-10 text-primary animate-bloom-slow">
+                        <svg class="w-24 h-24 md:w-32 md:h-32" fill="none" viewbox="0 0 100 100">
+                            <circle cx="50" cy="50" fill="currentColor" r="10"></circle>
+                            <circle cx="50" cy="25" fill="currentColor" opacity="0.8" r="15"></circle>
+                            <circle cx="50" cy="75" fill="currentColor" opacity="0.8" r="15"></circle>
+                            <circle cx="25" cy="50" fill="currentColor" opacity="0.8" r="15"></circle>
+                            <circle cx="75" cy="50" fill="currentColor" opacity="0.8" r="15"></circle>
+                            <circle cx="32" cy="32" fill="currentColor" opacity="0.6" r="12"></circle>
+                            <circle cx="68" cy="32" fill="currentColor" opacity="0.6" r="12"></circle>
+                            <circle cx="32" cy="68" fill="currentColor" opacity="0.6" r="12"></circle>
+                            <circle cx="68" cy="68" fill="currentColor" opacity="0.6" r="12"></circle>
+                        </svg>
+                    </div>
+                    <div class="absolute w-2 h-2 bg-secondary rounded-full animate-float-slow opacity-60"
+                        style="top: 10%; left: 20%;"></div>
+                    <div class="absolute w-3 h-3 bg-primary rounded-full animate-float-slow opacity-40"
+                        style="bottom: 15%; right: 25%; animation-delay: 2s;"></div>
+                </div>
+
+                <div class="flex flex-col gap-4 animate-float-slow">
+                    <div class="flex flex-col gap-2">
+                        <h1 id="loading-title" class="text-slate-900 text-2xl md:text-3xl font-bold tracking-tight">
+                            梅の蕾を数えています...</h1>
+                        <p id="loading-subtitle" class="text-primary/70 text-lg md:text-xl font-medium">心を分析中</p>
+                    </div>
+                    <div class="flex flex-col gap-1 px-8">
+                        <p class="text-slate-500 text-sm md:text-base leading-relaxed">
+                            あなたの言葉から、隠れた性格の彩りを見つけています。
+                        </p>
+                        <p class="text-slate-400 text-xs md:text-sm italic mt-4">
+                            10秒ほどお待ちください。
+                        </p>
+                    </div>
+                </div>
+
+                <div class="w-64 h-[2px] bg-secondary/10 rounded-full overflow-hidden">
+                    <div class="h-full w-full animate-loading-flow"
+                        style="background: linear-gradient(90deg, transparent 0%, #FFB7C5 20%, #8B0029 50%, #FFB7C5 80%, transparent 100%); background-size: 200% 100%;">
+                    </div>
+                </div>
+            </div>
+        </main>
+
+        <div
+            class="fixed bottom-0 left-0 -z-10 w-[300px] h-[300px] bg-secondary/10 rounded-full blur-[80px] pointer-events-none">
+        </div>
+        <div
+            class="fixed inset-0 -z-20 opacity-[0.03] pointer-events-none bg-[url('https://www.transparenttextures.com/patterns/natural-paper.png')]">
+        </div>
+    </div>
+
+    <script>
+        const loadingTitle = document.getElementById("loading-title");
+        const loadingSubtitle = document.getElementById("loading-subtitle");
+
+        // 質問生成
         // 日記保存の関数
         async function saveDiary(diary) {
             try {
                 const response = await fetch("/api/diaries", {
                     method: "POST",
-                    headers: {
-                        "Content-Type": "application/json",
-                    },
+                    headers: { "Content-Type": "application/json" },
                     body: JSON.stringify({ body: diary })
                 });
-                if (!response.ok) {
-                    throw new Error(`failed to save diary: ${response.status}`);
-                }
-
+                if (!response.ok) throw new Error(`failed: ${response.status}`);
                 return await response.json();
-
             } catch (error) {
                 console.error(error);
                 return null;
             }
         }
 
-        // 質問生成の関数
+        //質問生成の関数
         async function generateQuestions(diary) {
             try {
                 const response = await fetch("/api/generate/questions", {
                     method: "POST",
-                    headers: {
-                        "Content-Type": "application/json",
-                    },
+                    headers: { "Content-Type": "application/json" },
                     body: JSON.stringify({ diary: diary })
                 });
-                if (!response.ok) {
-                    throw new Error(`failed to generate questions: ${response.status}`);
-                }
-
+                if (!response.ok) throw new Error(`failed: ${response.status}`);
                 const result = await response.json();
                 return result.questions;
             } catch (error) {
@@ -52,10 +157,7 @@
 
         async function generateQuestionRun() {
             try {
-                // セッションストレージから日記本文を取得
                 const diaryBody = sessionStorage.getItem("pending-diary-body");
-
-                // 日記のidを得る
                 const savedDiary = await saveDiary(diaryBody);
                 if (!savedDiary) {
                     console.error("日記の保存に失敗しました");
@@ -63,12 +165,10 @@
                     window.location.href = "/diary-form";
                     return;
                 }
-                const diaryId = savedDiary.id;
 
-                // セッションストレージに日記IDを保存
+                const diaryId = savedDiary.id;
                 sessionStorage.setItem("pending-diary-id", diaryId);
 
-                // 質問を生成する
                 const questions = await generateQuestions(diaryBody);
                 if (!questions) {
                     console.error("質問生成に失敗しました");
@@ -77,12 +177,9 @@
                     return;
                 }
 
-                // 生成した質問を保存する
                 const response = await fetch(`/api/diaries/${diaryId}/questions`, {
                     method: "POST",
-                    headers: {
-                        "Content-Type": "application/json",
-                    },
+                    headers: { "Content-Type": "application/json" },
                     body: JSON.stringify({ questions: questions })
                 });
                 if (!response.ok) {
@@ -92,26 +189,18 @@
                 const savedQuestions = await response.json();
                 console.log(savedQuestions);
 
-                // セッションストレージから日記本文を削除
                 sessionStorage.removeItem("pending-diary-body");
-
-                // セッションストレージからfrom-page-idを削除
                 sessionStorage.removeItem("from-page-id");
-
-                // 質問ページへ移動
                 window.location.href = `/answer-questions?diary_id=${diaryId}`;
             } catch (error) {
                 console.error(error);
-                alert("質問保存に失敗しました");
-                // セッションストレージからfrom-page-idを削除
+                alert("エラーが発生しました。日記入力に戻ります。");
                 sessionStorage.removeItem("from-page-id");
-                // 質問ページへ移動
                 window.location.href = "/diary-form";
                 return;
             }
         }
 
-        // 日記、質問、回答を取得する関数
         async function getDiaryQuestionsAnswers(diaryId) {
             const endpoint = `/api/diaries/${diaryId}/diary-questions-answers`;
             try {
@@ -169,7 +258,7 @@
                 return null;
             }
         }
-        
+
         async function generateResultRun() {
             try {
                 // セッションストレージから日記IDを取得
@@ -198,7 +287,7 @@
 
                 // セッションストレージから日記IDを削除
                 sessionStorage.removeItem("pending-diary-id");
-                
+
                 // 結果ページへ移動
                 window.location.href = `/display-result?diary_id=${diaryId}`;
             } catch (error) {
@@ -214,10 +303,12 @@
             sessionStorage.removeItem("from-page-id");
 
             if (fromPageId === "diary-form") {
-                loading.innerHTML = "MBTI診断のための質問を生成中...";
+                loadingTitle.innerHTML = "梅の蕾を数えています...";
+                loadingSubtitle.innerHTML = "質問を生成中";
                 await generateQuestionRun();
             } else if (fromPageId === "answer-questions") {
-                loading.innerHTML = "MBTI診断の結果を生成中...";
+                loadingTitle.innerHTML = "彩りを分析しています...";
+                loadingSubtitle.innerHTML = "診断結果を生成中";
                 await generateResultRun();
             }
         }
@@ -225,3 +316,5 @@
         run();
     </script>
 </body>
+
+</html>
