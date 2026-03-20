@@ -30,4 +30,4 @@ class GetFullTypesResponse(BaseModel):
     body: str
     date: str
     time: str
-    type: str
+    type: str | None = None
