@@ -21,9 +21,9 @@
 </footer>
 <script>
     const path = window.location.pathname;
-    if (path.startsWith("/diary-form")) {
+    if (path.startsWith("/diary-form") || path.startsWith("/answer-questions") || path.startsWith("/generate-loading")) {
         document.getElementById("nav-diary-form").classList.add("active");
-    } else if (path.startsWith("/diary-list")) {
+    } else if (path.startsWith("/diary-list") || path.startsWith("/display-result")) {
         document.getElementById("nav-diary-list").classList.add("active");
     }
 </script>

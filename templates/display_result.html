@@ -73,6 +73,14 @@
     {% include "components/footer.html" %}
 
     <style>
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(8px); }
+            to   { opacity: 1; transform: translateY(0); }
+        }
+        .fade-in {
+            animation: fadeIn 0.4s ease-out forwards;
+        }
+
         @keyframes shimmer {
             0% { background-position: -400px 0; }
             100% { background-position: 400px 0; }
@@ -208,9 +216,11 @@
                 const result = await getResult(diaryId);
                 if (!result) throw new Error("結果データがありません");
 
-                // 1. タイプとニックネームの表示（スケルトン解除）
+                // 1. タイプとニックネームの表示（スケルトン解除＋フェードイン）
                 typeTextElement.innerHTML = result.type;
                 typeNicknameElement.innerHTML = getNickname(result.type);
+                typeTextElement.classList.add("fade-in");
+                typeNicknameElement.classList.add("fade-in");
 
                 // 2. スライダーの表示 (EI, SN, TF, JP)
                 scoreAreaElement.innerHTML = `
@@ -222,6 +232,7 @@
 
                 // 3. サマリーの表示
                 summaryAreaElement.innerHTML = `<p>${result.summary}</p>`;
+                summaryAreaElement.classList.add("fade-in");
 
                 // 4. 今後へのヒントの表示
                 if (result.future_hint && result.future_hint.trim()) {

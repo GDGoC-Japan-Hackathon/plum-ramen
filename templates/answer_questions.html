@@ -76,6 +76,17 @@
             font-weight: 500;
             line-height: 1.4;
         }
+
+        .choice-btn.selected {
+            background: #FAE8ED;
+            border-color: #D4607A;
+            box-shadow: 0 4px 12px rgba(212, 96, 122, 0.15);
+        }
+
+        .choice-btn.selected .choice-label {
+            background: #B84D65;
+            transform: scale(1.1);
+        }
     </style>
 
     <script type="module">
@@ -145,9 +156,9 @@
                 </button>
             `;
 
-            document.getElementById("choiceA").addEventListener("click", () => handleAnswerSelect("A"));
-            document.getElementById("choiceB").addEventListener("click", () => handleAnswerSelect("B"));
-            document.getElementById("choiceC").addEventListener("click", () => handleAnswerSelect("C"));
+            document.getElementById("choiceA").addEventListener("click", () => { document.getElementById("choiceA").classList.add("selected"); handleAnswerSelect("A"); });
+            document.getElementById("choiceB").addEventListener("click", () => { document.getElementById("choiceB").classList.add("selected"); handleAnswerSelect("B"); });
+            document.getElementById("choiceC").addEventListener("click", () => { document.getElementById("choiceC").classList.add("selected"); handleAnswerSelect("C"); });
         }
 
         function handleAnswerSelect(choiceKey) {
