@@ -107,11 +107,10 @@
 
         // 日記保存の関数
         async function saveDiary(diary) {
-
-            // Bearerトークン取得(1時間の有効期限)
-            const idToken = await getIdToken();
-
             try {
+                // Bearerトークン取得(1時間の有効期限)
+                const idToken = await getIdToken();
+
                 const response = await fetch("/api/diaries", {
                     method: "POST",
                     headers: {
