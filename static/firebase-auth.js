@@ -1,5 +1,5 @@
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.14.1/firebase-app.js";
-import { getAuth } from "https://www.gstatic.com/firebasejs/10.14.1/firebase-auth.js";
+import { getAuth, signOut, signInWithPopup, GoogleAuthProvider } from "https://www.gstatic.com/firebasejs/10.14.1/firebase-auth.js";
 import { onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.14.1/firebase-auth.js";
 
 const app = initializeApp({
@@ -7,7 +7,7 @@ const app = initializeApp({
     authDomain: "gdgoc2026.firebaseapp.com",
     projectId: "gdgoc2026",
 });
-const auth = getAuth(app);
+export const auth = getAuth(app);
 
 export function getIdToken() {
     // Firebaseがログイン状態の確認を終えるまで待ってからトークンを返す
@@ -20,6 +20,25 @@ export function getIdToken() {
             }
         });
     });
+}
+
+export async function login() {
+    try {
+        // googleログイン設定
+        const provider = new GoogleAuthProvider();
+        // googleログイン開始
+        await signInWithPopup(auth, provider);
+    } catch (error) {
+        // ポップアップを閉じた場合は無視(ユーザーによる操作)、それ以外はアラート
+        if (error.code === "auth/popup-closed-by-user") {
+            throw new Error("ログインに失敗しました");
+        }
+    }
+}
+
+export async function logout() {
+    await signOut(auth);
+    window.location.href = "/login";
 }
 
 export function requireLogin() {
