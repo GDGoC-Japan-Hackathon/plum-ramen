@@ -11,27 +11,7 @@ router.mount("/static", StaticFiles(directory="static"), name="static")
 def root(request: Request):
     return templates.TemplateResponse(
         request=request,
-        name="base.html",
-        context={
-            "page_title": "今日の記録",
-            "active_page": "editor",
-        },
-    )
-
-@router.get("/_test_list", response_class=HTMLResponse)
-def test_list_page(request: Request):
-    return templates.TemplateResponse(
-        request=request,
-        name="_test_list.html",
-        context={},
-    )
-
-@router.get("/login", response_class=HTMLResponse)
-def login_page(request: Request):
-    return templates.TemplateResponse(
-        request=request,
         name="login.html",
-        context={},
     )
 
 @router.get("/diary-list", response_class=HTMLResponse)
