@@ -103,6 +103,15 @@
         const saveBtn = document.getElementById("saveBtn");
         const analyzeBtn = document.getElementById("analyzeBtn");
         const charCount = document.getElementById("char-count");
+        const saveBtnDefaultText = saveBtn.textContent.trim();
+        let isSaving = false;
+        let isAnalyzing = false;
+
+        function setButtonDisabled(button, disabled) {
+            button.disabled = disabled;
+            button.style.opacity = disabled ? "0.65" : "1";
+            button.style.cursor = disabled ? "not-allowed" : "pointer";
+        }
 
         function updateCharCount() {
             const len = textArea.value.length;
@@ -145,8 +154,18 @@
 
         // 日記保存のボタンクリックイベント
         saveBtn.addEventListener("click", async () => {
+            if (isSaving) return;
+
             const text = textArea.value;
+            isSaving = true;
+            saveBtn.textContent = "保存中...";
+            setButtonDisabled(saveBtn, true);
+
             const savedDiary = await saveDiary(text);
+            isSaving = false;
+            saveBtn.textContent = saveBtnDefaultText;
+            setButtonDisabled(saveBtn, false);
+
             if (!savedDiary) {
                 console.error("日記の保存に失敗しました");
                 return;
@@ -158,11 +177,17 @@
 
         // 質問生成のボタンクリックイベント（ローディングページへ移動）
         analyzeBtn.addEventListener("click", async () => {
+            if (isAnalyzing) return;
+
             const text = textArea.value;
             if (text.length === 0) {
                 showToast("日記を書いてから質問生成をしてください", "warning");
                 return;
             }
+
+            isAnalyzing = true;
+            analyzeBtn.innerHTML = "生成中...";
+            setButtonDisabled(analyzeBtn, true);
             sessionStorage.setItem("pending-diary-body", text);
             sessionStorage.setItem("from-page-id", "diary-form");
             window.location.href = "/generate-loading";

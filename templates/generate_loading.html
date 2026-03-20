@@ -145,6 +145,7 @@
 
         const loadingTitle = document.getElementById("loading-title");
         const loadingSubtitle = document.getElementById("loading-subtitle");
+        let isRunStarted = false;
 
         async function saveDiary(diary) {
             try {
@@ -284,6 +285,9 @@
                     },
                     body: JSON.stringify(generatedResult),
                 });
+                if (response.status === 409) {
+                    return { alreadyExists: true };
+                }
                 if (!response.ok) {
                     throw new Error(`failed to save result: ${response.status}`);
                 }
@@ -308,6 +312,11 @@
 
                 const savedResult = await saveResult(diaryId, generatedResult);
                 if (!savedResult) throw new Error("結果の保存に失敗しました");
+                if (savedResult.alreadyExists) {
+                    sessionStorage.removeItem("pending-diary-id");
+                    window.location.href = `/display-result?diary_id=${diaryId}`;
+                    return;
+                }
 
                 sessionStorage.removeItem("pending-diary-id");
                 window.location.href = `/display-result?diary_id=${diaryId}`;
@@ -318,6 +327,9 @@
         }
 
         async function run() {
+            if (isRunStarted) return;
+            isRunStarted = true;
+
             const fromPageId = sessionStorage.getItem("from-page-id");
             sessionStorage.removeItem("from-page-id");
 

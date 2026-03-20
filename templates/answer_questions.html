@@ -98,14 +98,25 @@
         let questions = [];
         let currentIndex = 0;
         let answers = {};
+        let isChoiceLocked = false;
+        let isSubmitting = false;
 
         // 1. 要素の取得を追加
         const progressBarElement = document.getElementById("progress-bar");
+
+        function setChoiceButtonsDisabled(disabled) {
+            choicesAreaElement.querySelectorAll(".choice-btn").forEach((button) => {
+                button.disabled = disabled;
+                button.style.opacity = disabled ? "0.65" : "1";
+                button.style.cursor = disabled ? "not-allowed" : "pointer";
+            });
+        }
 
         // 2. renderQuestion関数を以下のように変更
         function renderQuestion() {
             const question = questions[currentIndex];
             const totalQuestions = questions.length;
+            isChoiceLocked = false;
 
             // 進捗率の計算とバーの更新
             const progressPercent = ((currentIndex + 1) / totalQuestions) * 100;
@@ -140,6 +151,11 @@
         }
 
         function handleAnswerSelect(choiceKey) {
+            if (isChoiceLocked || isSubmitting) return;
+
+            isChoiceLocked = true;
+            setChoiceButtonsDisabled(true);
+
             const question = questions[currentIndex];
             answers[question.question_id] = choiceKey;
             sessionStorage.setItem("draft-answers", JSON.stringify(answers));
@@ -157,6 +173,8 @@
         }
 
         async function submitAnswers() {
+            if (isSubmitting) return;
+
             const draftAnswers = JSON.parse(sessionStorage.getItem("draft-answers") || "{}");
             const payload = {
                 answers: Object.entries(draftAnswers).map(([questionId, choiceKey]) => ({
@@ -166,11 +184,10 @@
             };
 
             try {
+                isSubmitting = true;
                 // Bearerトークン取得(1時間の有効期限)
                 const idToken = await getIdToken();
-
-                // 送信中の表示
-                questionsAreaElement.innerHTML = "<p style='color:#D4607A; font-weight:bold;'>回答を送信しています...</p>";
+                setChoiceButtonsDisabled(true);
 
                 const response = await fetch(`/api/diaries/${diaryId}/questions/answers`, {
                     method: "POST",
@@ -188,6 +205,9 @@
                 window.location.href = "/generate-loading";
             } catch (error) {
                 console.error(error);
+                isSubmitting = false;
+                isChoiceLocked = false;
+                setChoiceButtonsDisabled(false);
                 showToast("回答の保存に失敗しました");
             }
         }
