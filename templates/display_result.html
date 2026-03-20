@@ -34,6 +34,17 @@
                 </div>
             </div>
 
+            <div id="future-hint-card"
+                style="display: none; position: relative; background: linear-gradient(135deg, #FFF7E0 0%, #FAF6EE 100%); border-radius: 20px; padding: 32px; border: 1px solid #E8B84B; margin-bottom: 60px; text-align: left;">
+                <div
+                    style="color: #A36A00; font-size: 0.75rem; font-weight: bold; letter-spacing: 2px; text-transform: uppercase; margin-bottom: 14px;">
+                    Next Hint
+                </div>
+                <div id="future-hint-area"
+                    style="font-size: 1rem; color: #1A1A1A; line-height: 1.8;">
+                </div>
+            </div>
+
             <div style="margin-top: 40px;">
                 <div
                     style="color: #94a3b8; font-size: 0.75rem; font-weight: bold; letter-spacing: 2px; text-transform: uppercase; margin-bottom: 30px;">
@@ -105,6 +116,8 @@
         const typeNicknameElement = document.getElementById("type-nickname");
         const scoreAreaElement = document.getElementById("score-area");
         const summaryAreaElement = document.getElementById("summary-area");
+        const futureHintCardElement = document.getElementById("future-hint-card");
+        const futureHintAreaElement = document.getElementById("future-hint-area");
 
         // スコアをスライダーの%に変換するヘルパー (-2 〜 +2 のスコア想定)
         function calculatePosition(score) {
@@ -179,14 +192,20 @@
 
                 // 2. スライダーの表示 (EI, SN, TF, JP)
                 scoreAreaElement.innerHTML = `
-                    ${createSlider('EXTRAVERSION (E)', 'INTROVERSION (I)', result.ei_score)}
-                    ${createSlider('SENSING (S)', 'INTUITION (N)', result.sn_score)}
+                    ${createSlider('INTROVERSION (I)', 'EXTRAVERSION (E)', result.ei_score)}
+                    ${createSlider('INTUITION (N)', 'SENSING (S)', result.sn_score)}
                     ${createSlider('THINKING (T)', 'FEELING (F)', result.tf_score)}
                     ${createSlider('JUDGING (J)', 'PERCEIVING (P)', result.jp_score)}
                 `;
 
                 // 3. サマリーの表示
                 summaryAreaElement.innerHTML = `<p>${result.summary}</p>`;
+
+                // 4. 今後へのヒントの表示
+                if (result.future_hint && result.future_hint.trim()) {
+                    futureHintAreaElement.innerHTML = `<p>${result.future_hint}</p>`;
+                    futureHintCardElement.style.display = "block";
+                }
 
             } catch (error) {
                 console.error(error);
