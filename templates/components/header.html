@@ -1,5 +1,9 @@
-<header>
-    <button id="logout-button">ログアウト</button>
+<header
+    style="max-width: 800px; margin: 0 auto 20px; color: #d81b60; font-weight: bold; font-size: 1.2rem; letter-spacing: 1px; display: flex; justify-content: space-between; align-items: center;">
+    アプリタイトル
+    <button id="logout-button"
+        style="padding: 8px 20px; border-radius: 30px; border: 1.5px solid #ffccd5; background: white; color: #d81b60; font-weight: bold; cursor: pointer; font-size: 0.85rem; transition: 0.2s;"
+        onmouseover="this.style.background='#fff0f3'" onmouseout="this.style.background='white'">ログアウト</button>
     <script type="module">
         import { logout } from "/static/firebase-auth.js";
 
