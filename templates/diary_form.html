@@ -47,8 +47,12 @@
                         padding: 0;
                     "></textarea>
 
+                <div style="text-align: right; margin-top: 8px; flex-shrink: 0;">
+                    <span id="char-count" style="font-size: 0.75rem; color: #ccc;">0 文字</span>
+                </div>
+
                 <div class="button-row"
-                    style="display: flex; justify-content: flex-end; gap: 12px; margin-top: 15px; flex-shrink: 0;">
+                    style="display: flex; justify-content: flex-end; gap: 12px; margin-top: 8px; flex-shrink: 0;">
                     <button class="btn-outline" type="button" id="saveBtn"
                         style="padding: 10px 24px; border-radius: 30px; border: 1.5px solid #7BAE8A; background: white; color: #7BAE8A; font-weight: bold; cursor: pointer; font-size: 0.85rem;">
                         保存
@@ -98,12 +102,20 @@
         const textArea = document.getElementById("text");
         const saveBtn = document.getElementById("saveBtn");
         const analyzeBtn = document.getElementById("analyzeBtn");
-        const loading = document.getElementById("loading");
+        const charCount = document.getElementById("char-count");
+
+        function updateCharCount() {
+            const len = textArea.value.length;
+            charCount.textContent = `${len} 文字`;
+            charCount.style.color = len > 0 ? "#D4607A" : "#ccc";
+        }
+        textArea.addEventListener("input", updateCharCount);
 
         // loadingページから戻ってきた場合、セッションストレージから日記本文を取得
         const savedBody = sessionStorage.getItem("pending-diary-body");
         if (savedBody) {
             textArea.value = savedBody;
+            updateCharCount();
         }
 
         // 日記保存の関数

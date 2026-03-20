@@ -15,12 +15,12 @@
 
             <h1 id="type-text"
                 style="font-size: 5rem; color: #1a1a1a; margin: 0; line-height: 1; letter-spacing: -2px;">
-                ----
+                <span class="skeleton" style="display: inline-block; width: 200px; height: 72px; border-radius: 12px;"></span>
             </h1>
 
             <div id="type-nickname"
                 style="font-size: 1.75rem; color: #D4607A; font-weight: bold; margin-top: 10px; margin-bottom: 40px;">
-                分析中...
+                <span class="skeleton" style="display: inline-block; width: 120px; height: 32px; border-radius: 8px;"></span>
             </div>
 
             <div
@@ -31,7 +31,9 @@
 
                 <div id="summary-area"
                     style="font-size: 1rem; color: #1A1A1A; line-height: 1.8; text-align: left; position: relative; z-index: 1;">
-                    診断結果を読み込んでいます...
+                    <span class="skeleton" style="display: block; width: 100%; height: 16px; border-radius: 4px; margin-bottom: 10px;"></span>
+                    <span class="skeleton" style="display: block; width: 90%; height: 16px; border-radius: 4px; margin-bottom: 10px;"></span>
+                    <span class="skeleton" style="display: block; width: 95%; height: 16px; border-radius: 4px;"></span>
                 </div>
             </div>
 
@@ -56,12 +58,31 @@
                     style="font-size: 1rem; color: #1A1A1A; line-height: 1.8;">
                 </div>
             </div>
+
+            <div style="text-align: center; margin-top: 40px; margin-bottom: 8px;">
+                <a href="/diary-list"
+                    style="display: inline-block; padding: 12px 36px; border-radius: 30px; border: 1.5px solid #D4607A; background: white; color: #D4607A; font-weight: bold; font-size: 0.95rem; text-decoration: none; transition: background 0.2s, transform 0.2s;"
+                    onmouseover="this.style.background='#FAE8ED'; this.style.transform='translateY(-2px)'"
+                    onmouseout="this.style.background='white'; this.style.transform='translateY(0)'">
+                    日記一覧へ
+                </a>
+            </div>
         </div>
     </main>
 
     {% include "components/footer.html" %}
 
     <style>
+        @keyframes shimmer {
+            0% { background-position: -400px 0; }
+            100% { background-position: 400px 0; }
+        }
+        .skeleton {
+            background: linear-gradient(90deg, #FAE8ED 25%, #FFF0F3 50%, #FAE8ED 75%);
+            background-size: 800px 100%;
+            animation: shimmer 1.4s ease-in-out infinite;
+        }
+
         /* スライダーの見た目 */
         .balance-row {
             display: flex;
@@ -187,9 +208,9 @@
                 const result = await getResult(diaryId);
                 if (!result) throw new Error("結果データがありません");
 
-                // 1. タイプとニックネームの表示
-                typeTextElement.textContent = result.type;
-                typeNicknameElement.textContent = getNickname(result.type);
+                // 1. タイプとニックネームの表示（スケルトン解除）
+                typeTextElement.innerHTML = result.type;
+                typeNicknameElement.innerHTML = getNickname(result.type);
 
                 // 2. スライダーの表示 (EI, SN, TF, JP)
                 scoreAreaElement.innerHTML = `
