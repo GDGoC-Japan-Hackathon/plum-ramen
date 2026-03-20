@@ -3,6 +3,7 @@ from schemas.questions import GenerateQuestionsRequest, GenerateQuestionsRespons
 from services.questions import generate_questions_service, insert_questions_service, get_questions_service
 from core.auth import get_current_user
 from fastapi import Depends
+import logging
 
 # ここに実装するapi
 ## 質問生成
@@ -11,6 +12,7 @@ from fastapi import Depends
 ## 質問取得（複数）
 
 router = APIRouter()
+logger = logging.getLogger(__name__)
 
 # 変更メモ
 # エンドポイントを/api/questionsから/api/generate/questionsに変更
@@ -19,6 +21,7 @@ def generate_questions(request: GenerateQuestionsRequest):
     try:
         return generate_questions_service(request)
     except Exception as e:
+        logger.exception("Failed to generate questions")
         raise HTTPException(status_code=500, detail=str(e))
 
 # 変更メモ
@@ -32,6 +35,7 @@ def create_question(diaries_id: int, request: InsertQuestionsRequest, current_us
     except HTTPException:
         raise
     except Exception as e:
+        logger.exception("Failed to save questions for diary_id=%s", diaries_id)
         raise HTTPException(status_code=500, detail=str(e))
 
 # 変更メモ
@@ -44,4 +48,5 @@ def get_questions(diaries_id: int, current_user: dict = Depends(get_current_user
     except HTTPException:
         raise
     except Exception as e:
+        logger.exception("Failed to get questions for diary_id=%s", diaries_id)
         raise HTTPException(status_code=500, detail=str(e))

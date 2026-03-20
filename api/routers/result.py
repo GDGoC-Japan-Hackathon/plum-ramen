@@ -5,6 +5,7 @@ import sqlalchemy
 from core.db import engine
 from core.auth import get_current_user
 from fastapi import Depends
+import logging
 
 # ここに実装するapi
 ## 結果生成
@@ -13,6 +14,7 @@ from fastapi import Depends
 ## 結果取得（複数）
 
 router = APIRouter()
+logger = logging.getLogger(__name__)
 
 # 変更メモ
 # エンドポイントを/api/resultから/api/generate/resultに変更
@@ -23,6 +25,7 @@ def generate_result(request: GenerateResultRequest):
     except HTTPException:
         raise
     except Exception as e:
+        logger.exception("Failed to generate result")
         raise HTTPException(status_code=500, detail=str(e))
 
 # 変更メモ
@@ -36,6 +39,7 @@ def save_result(diaries_id: int, request: InsertResultSummaryRequest, current_us
     except HTTPException:
         raise
     except Exception as e:
+        logger.exception("Failed to save result for diary_id=%s", diaries_id)
         raise HTTPException(status_code=500, detail=str(e))
 
 # 変更メモ
@@ -51,4 +55,5 @@ def get_result_by_user_and_diaries(diaries_id: int, current_user: dict = Depends
     except HTTPException:
         raise
     except Exception as e:
+        logger.exception("Failed to get result for diary_id=%s", diaries_id)
         raise HTTPException(status_code=500, detail=str(e))
