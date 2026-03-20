@@ -84,7 +84,10 @@
                         <div style="color: #D4607A; font-weight: bold; font-size: 1.1rem; margin-bottom: 6px;">
                             ${diary.date ? diary.date.replace(/-/g, '.') : ''}
                         </div>
-                        ${diary.type ? `<div style="background: #E8B84B; color: #1A1A1A; font-size: 0.75rem; padding: 3px 10px; border-radius: 6px; display: inline-block; font-weight: 600;">${diary.type}</div>` : ''}
+                        ${diary.type
+                            ? `<div style="background: #E8B84B; color: #1A1A1A; font-size: 0.75rem; padding: 3px 10px; border-radius: 6px; display: inline-block; font-weight: 600;">${diary.type}</div>`
+                            : `<div style="background: #e0e0e0; color: #999; font-size: 0.75rem; padding: 3px 10px; border-radius: 6px; display: inline-block; font-weight: 600;">未完了</div>`
+                        }
                     </div>
                     <p style="color: #1A1A1A; font-size: 0.95rem; line-height: 1.8; margin: 0; display: -webkit-box; -webkit-line-clamp: 3; -webkit-box-orient: vertical; overflow: hidden; text-overflow: ellipsis; white-space: pre-wrap;">${diary.body ? diary.body.trim() : ''}</p>
                 </div>
