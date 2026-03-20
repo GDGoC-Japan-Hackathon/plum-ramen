@@ -1,56 +1,153 @@
-<body>
-    <style>
-        .result-area {
-            max-width: 720px;
-            margin: 0 auto;
-            text-align: center;
-        }
-        .type-text {
-            font-size: 5rem;
-            font-weight: bold;
-        }
-        .score-area {
-            font-size: 1.5rem;
-            font-weight: bold;
-        }
-        .summary-area {
-            font-size: 1.2rem;
-            font-weight: bold;
-        }
-    </style>
-    <main>
-        <div class="result-area" id="result-area">
-            <h1 class="type-text" id="type-text">INTJ</h1>
-            <div class="score-area" id="score-area">
-                <p>EI: +2</p>
-                <p>SN: +1</p>
-                <p>TF: +1</p>
-                <p>JP: -1</p>
+<!DOCTYPE html>
+<html lang="ja">
+
+<head>
+    <meta charset="UTF-8">
+    <title>Brand New - Result</title>
+</head>
+
+<body
+    style="background-color: #fef8f8; font-family: 'Helvetica Neue', Arial, 'Hiragino Kaku Gothic ProN', 'Hiragino Sans', sans-serif; margin: 0; padding: 40px 20px;">
+
+    <header
+        style="max-width: 800px; margin: 0 auto 20px; color: #d81b60; font-weight: bold; font-size: 1.2rem; letter-spacing: 1px;">
+        Brand new
+    </header>
+
+    <main class="result-page" style="max-width: 800px; margin: 0 auto;">
+        <div class="result-card"
+            style="background: white; border-radius: 32px; padding: 48px 32px; box-shadow: 0 15px 35px rgba(216, 27, 96, 0.05); border: 1px solid #fff0f3; text-align: center;">
+
+            <div
+                style="color: #d81b60; font-size: 0.75rem; font-weight: bold; letter-spacing: 2px; text-transform: uppercase; margin-bottom: 16px;">
+                Your Personality Type
             </div>
-            <div class="summary-area" id="summary-area">
-                <p>INTJは非常に希少な性格タイプで、人口のわずか数パーセントと言われています。深い洞察力と強い理想主義を持ち、単なる夢想家ではなく、自分の目標を実現し、社会に永続的なポジティブな影響を与えるために具体的な計画を立て、実行する力を持っています。人助けを自らの使命と感じ、不正や不平等に対しては非常に情熱的に立ち向かいます。</p>
+
+            <h1 id="type-text"
+                style="font-size: 5rem; color: #1a1a1a; margin: 0; line-height: 1; letter-spacing: -2px;">
+                ----
+            </h1>
+
+            <div id="type-nickname"
+                style="font-size: 1.75rem; color: #d81b60; font-weight: bold; margin-top: 10px; margin-bottom: 40px;">
+                分析中...
+            </div>
+
+            <div
+                style="position: relative; background: #fffafb; border-radius: 20px; padding: 32px; border: 1px solid #ffeef1; margin-bottom: 60px;">
+                <div
+                    style="position: absolute; top: 10px; right: 20px; font-size: 4rem; color: #d81b60; opacity: 0.05; font-family: serif; line-height: 1;">
+                    ”</div>
+
+                <div id="summary-area"
+                    style="font-size: 1rem; color: #444; line-height: 1.8; text-align: left; position: relative; z-index: 1;">
+                    診断結果を読み込んでいます...
+                </div>
+            </div>
+
+            <div style="margin-top: 40px;">
+                <div
+                    style="color: #94a3b8; font-size: 0.75rem; font-weight: bold; letter-spacing: 2px; text-transform: uppercase; margin-bottom: 30px;">
+                    Personality Balance
+                </div>
+
+                <div id="score-area"
+                    style="max-width: 600px; margin: 0 auto; display: flex; flex-direction: column; gap: 24px;">
+                </div>
             </div>
         </div>
     </main>
-    <footer>
-        hello world
-        <a href="/diary-form">日記作成</a>
-        <a href="/answer-questions">質問回答</a>
-        <a href="/display-result">診断結果表示</a>
+
+    <footer
+        style="margin-top: 60px; text-align: center; border-top: 1px solid #eee; padding-top: 30px; padding-bottom: 40px;">
+        <div style="margin-bottom: 15px; color: #666; font-size: 0.9rem;">hello world</div>
+        <div style="display: flex; justify-content: center; gap: 24px;">
+            <a href="/diary-form" style="text-decoration: none; color: #666; font-size: 0.9rem;">日記作成</a>
+            <a href="/answer-questions" style="text-decoration: none; color: #666; font-size: 0.9rem;">質問回答</a>
+            <a href="/display-result"
+                style="text-decoration: none; color: #d81b60; font-size: 0.9rem; font-weight: bold;">診断結果表示</a>
+        </div>
+        <p style="color: #ccc; font-size: 0.75rem; margin-top: 20px;">&copy; 2026 Brand New</p>
     </footer>
+
+    <style>
+        /* スライダーの見た目 */
+        .balance-row {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 15px;
+        }
+
+        .label-left,
+        .label-right {
+            font-size: 0.75rem;
+            color: #64748b;
+            font-weight: bold;
+            width: 120px;
+        }
+
+        .label-left {
+            text-align: left;
+        }
+
+        .label-right {
+            text-align: right;
+        }
+
+        .track {
+            flex-grow: 1;
+            height: 4px;
+            background: #ffeef1;
+            border-radius: 2px;
+            position: relative;
+        }
+
+        .dot {
+            width: 14px;
+            height: 14px;
+            background: #d81b60;
+            border-radius: 50%;
+            position: absolute;
+            top: 50%;
+            transform: translate(-50%, -50%);
+            box-shadow: 0 2px 4px rgba(216, 27, 96, 0.3);
+            transition: left 1s ease-out;
+            /* ふわっと動くアニメーション */
+        }
+    </style>
+
     <script>
-        const resultAreaElement = document.getElementById("result-area");
         const typeTextElement = document.getElementById("type-text");
+        const typeNicknameElement = document.getElementById("type-nickname");
         const scoreAreaElement = document.getElementById("score-area");
         const summaryAreaElement = document.getElementById("summary-area");
-        
+
+        // スコアをスライダーの%に変換するヘルパー (-2 〜 +2 のスコア想定)
+        function calculatePosition(score) {
+            // 公式: (スコア - 最小値) / (最大値 - 最小値) * 100
+            // (score - (-2)) / (2 - (-2)) * 100 => (score + 2) / 4 * 100
+            let pos = (score + 2) * 25;
+
+            // 念のため 0% 〜 100% の間にガードをかける
+            return Math.min(Math.max(pos, 0), 100);
+        }
+
+        // タイプ名に応じた日本語の呼称を返す（オプション）
+        function getNickname(type) {
+            const nicknames = {
+                'INFJ': '提唱者', 'INTJ': '建築家', 'INFP': '仲介者', 'INTP': '論理学者',
+                'ENFJ': '主人公', 'ENTJ': '指揮官', 'ENFP': '運動家', 'ENTP': '討論者',
+                'ISFJ': '擁護者', 'ISTJ': '管理者', 'ISFP': '冒険家', 'ISTP': '巨匠',
+                'ESFJ': '領事官', 'ESTJ': '幹部', 'ESFP': 'エンターテイナー', 'ESTP': '起業家'
+            };
+            return nicknames[type] || '探求者';
+        }
 
         async function getResult(diaryId) {
             try {
                 const response = await fetch(`/api/diaries/${diaryId}/result`);
-                if (!response.ok) {
-                    throw new Error(`failed to get result: ${response.status}`);
-                }
+                if (!response.ok) throw new Error(`failed: ${response.status}`);
                 return await response.json();
             } catch (error) {
                 console.error(error);
@@ -59,41 +156,52 @@
             }
         }
 
+        function createSlider(leftLabel, rightLabel, score) {
+            const pos = calculatePosition(score);
+            return `
+                <div class="balance-row">
+                    <span class="label-left">${leftLabel}</span>
+                    <div class="track">
+                        <div class="dot" style="left: ${pos}%"></div>
+                    </div>
+                    <span class="label-right">${rightLabel}</span>
+                </div>
+            `;
+        }
+
         async function run() {
             try {
                 const diaryId = new URLSearchParams(window.location.search).get("diary_id");
-                if (!diaryId) {
-                    throw new Error("日記IDが見つかりません");
-                }
+                if (!diaryId) throw new Error("日記IDが見つかりません");
 
-                // セッションストレージから日記IDを削除
                 sessionStorage.removeItem("pending-diary-id");
 
                 const result = await getResult(diaryId);
-                if (!result) {
-                    throw new Error("診断結果の取得に失敗しました");
-                }
+                if (!result) throw new Error("結果データがありません");
 
-                typeTextElement.innerHTML = `
-                    ${result.type}
-                `;
+                // 1. タイプとニックネームの表示
+                typeTextElement.textContent = result.type;
+                typeNicknameElement.textContent = getNickname(result.type);
 
+                // 2. スライダーの表示 (EI, SN, TF, JP)
                 scoreAreaElement.innerHTML = `
-                    <p>EI: ${result.ei_score}</p>
-                    <p>SN: ${result.sn_score}</p>
-                    <p>TF: ${result.tf_score}</p>
-                    <p>JP: ${result.jp_score}</p>
+                    ${createSlider('EXTRAVERSION (E)', 'INTROVERSION (I)', result.ei_score)}
+                    ${createSlider('SENSING (S)', 'INTUITION (N)', result.sn_score)}
+                    ${createSlider('THINKING (T)', 'FEELING (F)', result.tf_score)}
+                    ${createSlider('JUDGING (J)', 'PERCEIVING (P)', result.jp_score)}
                 `;
 
-                summaryAreaElement.innerHTML = `
-                    <p>${result.summary}</p>
-                `;
+                // 3. サマリーの表示
+                summaryAreaElement.innerHTML = `<p>${result.summary}</p>`;
+
             } catch (error) {
                 console.error(error);
-                alert("診断結果の表示に失敗しました");
+                summaryAreaElement.textContent = "診断結果を表示できませんでした。";
             }
         }
 
         run();
     </script>
 </body>
+
+</html>
