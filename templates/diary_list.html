@@ -15,7 +15,26 @@
     {% include "components/footer.html" %}
 
     <style>
-        /* 矢印ボタン：少し小ぶりにしてスッキリさせました */
+        .diary-card {
+            background: white;
+            border-radius: 16px;
+            padding: 24px;
+            margin-bottom: 16px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.03);
+            cursor: pointer;
+            transition: transform 0.2s ease, box-shadow 0.2s ease;
+        }
+
+        .diary-card:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 24px rgba(0,0,0,0.06);
+        }
+
+        .diary-card:focus-visible {
+            outline: 2px solid #D4607A;
+            outline-offset: 2px;
+        }
+
         .nav-btn {
             background: white;
             border: 1px solid #e0e0e0;
@@ -79,7 +98,7 @@
             }
 
             diariesListElement.innerHTML = diaries.map(diary => `
-                <div style="background: white; border-radius: 16px; padding: 24px; margin-bottom: 16px; box-shadow: 0 4px 12px rgba(0,0,0,0.03);">
+                <div class="diary-card" data-diary-id="${diary.id}" tabindex="0" role="button" aria-label="日記詳細を開く">
                     <div style="margin-bottom: 14px;">
                         <div style="color: #D4607A; font-weight: bold; font-size: 1.1rem; margin-bottom: 6px;">
                             ${diary.date ? diary.date.replace(/-/g, '.') : ''}
@@ -92,6 +111,31 @@
                     <p style="color: #1A1A1A; font-size: 0.95rem; line-height: 1.8; margin: 0; display: -webkit-box; -webkit-line-clamp: 3; -webkit-box-orient: vertical; overflow: hidden; text-overflow: ellipsis; white-space: pre-wrap;">${diary.body ? diary.body.trim() : ''}</p>
                 </div>
             `).join('');
+
+            diariesListElement.querySelectorAll(".diary-card").forEach((card) => {
+                card.addEventListener("click", () => handleDiarySelect(Number(card.dataset.diaryId)));
+                card.addEventListener("keydown", (event) => {
+                    if (event.key === "Enter" || event.key === " ") {
+                        event.preventDefault();
+                        handleDiarySelect(Number(card.dataset.diaryId));
+                    }
+                });
+            });
+        }
+
+        function handleDiarySelect(diaryId) {
+            const diary = allDiaries.find((item) => item.id === diaryId);
+            if (!diary) {
+                alert("日記データの取得に失敗しました");
+                return;
+            }
+
+            if (diary.type) {
+                window.location.href = `/display-result?diary_id=${diary.id}`;
+                return;
+            }
+
+            alert("まだ結果は生成していません。生成機能は後日対応予定です。");
         }
 
         // 検索フィルター機能

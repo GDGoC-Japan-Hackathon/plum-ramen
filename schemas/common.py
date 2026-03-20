@@ -27,6 +27,7 @@ class GetFullDiaryDataResponse(BaseModel):
     answers: AnswersWrapper
 
 class GetFullTypesResponse(BaseModel):
+    id: int
     body: str
     date: str
     time: str

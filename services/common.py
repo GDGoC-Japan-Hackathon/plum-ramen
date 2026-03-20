@@ -42,6 +42,7 @@ def get_full_types_service(user_id: int) -> list[GetFullTypesResponse]:
     with engine.connect() as conn:
         sql = sqlalchemy.text("""
             SELECT
+                d.id,
                 d.body,
                 TO_CHAR(d.created_at, 'YYYY-MM-DD') as date,
                 TO_CHAR(d.created_at, 'HH24:MI') as time,
