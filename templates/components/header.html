@@ -1,4 +1,12 @@
-<header class="shell-header relative z-50 w-full shrink-0 border-b border-plum-soft bg-white/80 backdrop-blur-md">
-    <div class="mx-auto flex w-full max-w-6xl items-center justify-between px-4 py-3 md:px-10">
-    </div>
+<header>
+    <button id="logout-button">ログアウト</button>
+    <script type="module">
+        import { logout } from "/static/firebase-auth.js";
+
+        const logoutBtn = document.getElementById("logout-button");
+
+        logoutBtn.addEventListener("click", async () => {
+            await logout();
+        })
+    </script>
 </header>
