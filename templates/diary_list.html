@@ -156,6 +156,9 @@
                         }
                     </div>
                     <p style="color: #1A1A1A; font-size: 0.95rem; line-height: 1.8; margin: 0; display: -webkit-box; -webkit-line-clamp: 3; -webkit-box-orient: vertical; overflow: hidden; text-overflow: ellipsis; white-space: pre-wrap;">${diary.body ? diary.body.trim() : ''}</p>
+                    <p style="margin: 12px 0 0; font-size: 0.8rem; color: #94a3b8;">
+                        ${diary.type ? "タップして結果を見る" : "結果はまだ未生成です"}
+                    </p>
                 </div>
             `).join('');
 
