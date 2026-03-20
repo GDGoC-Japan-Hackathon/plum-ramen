@@ -1,19 +1,19 @@
 <body
-    style="background-color: #fef8f8; font-family: 'Helvetica Neue', Arial, 'Hiragino Kaku Gothic ProN', 'Hiragino Sans', sans-serif; margin: 0; padding: 40px 20px;">
+    style="background-color: #FAF6EE; font-family: 'Helvetica Neue', Arial, 'Hiragino Kaku Gothic ProN', 'Hiragino Sans', sans-serif; margin: 0; padding: 40px 20px;">
 
     {% include "components/header.html" %}
 
     <main class="diary-page" style="max-width: 800px; margin: 0 auto;">
         <div id="questions-area"
-            style="background: white; border-radius: 32px; padding: 48px 32px; box-shadow: 0 15px 35px rgba(216, 27, 96, 0.05); border: 1px solid #fff0f3; text-align: center;">
+            style="background: white; border-radius: 32px; padding: 48px 32px; box-shadow: 0 15px 35px rgba(212, 96, 122, 0.05); border: 1px solid #FAE8ED; text-align: center;">
 
             <div id="question-number"
-                style="display: inline-block; background: #fff0f3; color: #d81b60; padding: 4px 16px; border-radius: 20px; font-size: 0.75rem; font-weight: bold; letter-spacing: 1px; margin-bottom: 24px; text-transform: uppercase;">
+                style="display: inline-block; background: #E8B84B; color: #1A1A1A; padding: 4px 16px; border-radius: 20px; font-size: 0.75rem; font-weight: bold; letter-spacing: 1px; margin-bottom: 24px; text-transform: uppercase;">
                 QUESTION
             </div>
 
             <h2 id="question-text"
-                style="font-size: 1.75rem; color: #2d3436; margin-bottom: 40px; line-height: 1.4; font-weight: bold;">
+                style="font-size: 1.75rem; color: #1A1A1A; margin-bottom: 40px; line-height: 1.4; font-weight: bold;">
                 読み込み中...
             </h2>
 
@@ -33,8 +33,8 @@
             gap: 20px;
             width: 100%;
             padding: 16px 24px;
-            background: #fffafb;
-            border: 1px solid #ffeef1;
+            background: #FAF6EE;
+            border: 1px solid #FAE8ED;
             border-radius: 24px;
             cursor: pointer;
             transition: all 0.2s ease;
@@ -42,10 +42,10 @@
         }
 
         .choice-btn:hover {
-            background: #fff0f3;
-            border-color: #d81b60;
+            background: #FAE8ED;
+            border-color: #D4607A;
             transform: translateY(-2px);
-            box-shadow: 0 4px 12px rgba(216, 27, 96, 0.08);
+            box-shadow: 0 4px 12px rgba(212, 96, 122, 0.08);
         }
 
         /* A, B, C の丸ラベル */
@@ -55,17 +55,17 @@
             justify-content: center;
             min-width: 40px;
             height: 40px;
-            background: #ad1457;
+            background: #D4607A;
             color: white;
             border-radius: 50%;
             font-weight: bold;
             font-size: 1.1rem;
-            box-shadow: 0 2px 6px rgba(173, 20, 87, 0.3);
+            box-shadow: 0 2px 6px rgba(212, 96, 122, 0.3);
         }
 
         .choice-content {
             font-size: 1rem;
-            color: #444;
+            color: #1A1A1A;
             font-weight: 500;
             line-height: 1.4;
         }
@@ -84,7 +84,7 @@
         const diaryId = new URLSearchParams(window.location.search).get("diary_id");
         if (!diaryId) {
             // エラー表示も少し綺麗に
-            questionsAreaElement.innerHTML = "<p style='color:#d81b60;'>日記IDが見つかりません。最初からやり直してください。</p>";
+            questionsAreaElement.innerHTML = "<p style='color:#D4607A;'>日記IDが見つかりません。最初からやり直してください。</p>";
             throw new Error("日記IDが見つかりません");
         }
 
@@ -154,7 +154,7 @@
                 const idToken = await getIdToken();
 
                // 送信中の表示
-               questionsAreaElement.innerHTML = "<p style='color:#d81b60; font-weight:bold;'>回答を送信しています...</p>";
+               questionsAreaElement.innerHTML = "<p style='color:#D4607A; font-weight:bold;'>回答を送信しています...</p>";
 
                 const response = await fetch(`/api/diaries/${diaryId}/questions/answers`, {
                     method: "POST",

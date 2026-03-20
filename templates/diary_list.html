@@ -1,9 +1,9 @@
-<body style="background-color: #f8f5f5; font-family: 'Helvetica Neue', Arial, sans-serif; margin: 0; padding: 20px;">
+<body style="background-color: #FAF6EE; font-family: 'Helvetica Neue', Arial, sans-serif; margin: 0; padding: 20px;">
 
     {% include "components/header.html" %}
     
     <div style="text-align: center; margin-bottom: 20px;">
-        <h2 style="color: #800020; margin: 0; font-size: 1.8rem; letter-spacing: 1px;">日記履歴</h2>
+        <h2 style="color: #D4607A; margin: 0; font-size: 1.8rem; letter-spacing: 1px;">日記履歴</h2>
     </div>
 
     <div style="text-align: center; margin-bottom: 30px;">
@@ -19,7 +19,7 @@
         .nav-btn {
             background: white;
             border: 1px solid #e0e0e0;
-            color: #800020;
+            color: #D4607A;
             width: 36px;
             height: 36px;
             border-radius: 50%;
@@ -33,12 +33,12 @@
         }
 
         .nav-btn:hover {
-            background: #fff0f3;
-            border-color: #800020;
+            background: #FAE8ED;
+            border-color: #D4607A;
         }
 
         #search-input:focus {
-            border-color: #800020;
+            border-color: #D4607A;
         }
     </style>
 
@@ -81,12 +81,12 @@
             diariesListElement.innerHTML = diaries.map(diary => `
                 <div style="background: white; border-radius: 16px; padding: 24px; margin-bottom: 16px; box-shadow: 0 4px 12px rgba(0,0,0,0.03);">
                     <div style="margin-bottom: 14px;">
-                        <div style="color: #800020; font-weight: bold; font-size: 1.1rem; margin-bottom: 6px;">
+                        <div style="color: #D4607A; font-weight: bold; font-size: 1.1rem; margin-bottom: 6px;">
                             ${diary.date ? diary.date.replace(/-/g, '.') : ''}
                         </div>
-                        ${diary.type ? `<div style="background: #fff0f3; color: #800020; font-size: 0.75rem; padding: 3px 10px; border-radius: 6px; display: inline-block; font-weight: 600;">${diary.type}</div>` : ''}
+                        ${diary.type ? `<div style="background: #E8B84B; color: #1A1A1A; font-size: 0.75rem; padding: 3px 10px; border-radius: 6px; display: inline-block; font-weight: 600;">${diary.type}</div>` : ''}
                     </div>
-                    <p style="color: #444; font-size: 0.95rem; line-height: 1.8; margin: 0; display: -webkit-box; -webkit-line-clamp: 3; -webkit-box-orient: vertical; overflow: hidden; text-overflow: ellipsis; white-space: pre-wrap;">${diary.body ? diary.body.trim() : ''}</p>
+                    <p style="color: #1A1A1A; font-size: 0.95rem; line-height: 1.8; margin: 0; display: -webkit-box; -webkit-line-clamp: 3; -webkit-box-orient: vertical; overflow: hidden; text-overflow: ellipsis; white-space: pre-wrap;">${diary.body ? diary.body.trim() : ''}</p>
                 </div>
             `).join('');
         }
