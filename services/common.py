@@ -47,7 +47,7 @@ def get_full_types_service(user_id: int) -> list[GetFullTypesResponse]:
                 TO_CHAR(d.created_at, 'HH24:MI') as time,
                 r.type
             FROM diaries d
-            INNER JOIN results r ON d.id = r.diaries_id
+            LEFT JOIN results r ON d.id = r.diaries_id
             WHERE d.user_id = :user_id
             ORDER BY d.created_at DESC
         """)
