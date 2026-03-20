@@ -18,6 +18,7 @@ class GenerateResultResponse(BaseModel):
     tf_score: int
     jp_score: int
     summary: str
+    future_hint: str
 
 # 変更メモ
 # diaries_idを外し、passにする
@@ -33,6 +34,7 @@ class InsertResultSummaryResponse(BaseModel):
     tf_score: int
     jp_score: int
     summary: str
+    future_hint: str
 
 class GetResultResponse(BaseModel):
     id: int
@@ -43,3 +45,4 @@ class GetResultResponse(BaseModel):
     tf_score: int
     jp_score: int
     summary: str
+    future_hint: str

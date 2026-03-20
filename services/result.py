@@ -70,11 +70,11 @@ def save_result_service(user_id: int, diaries_id: int, request: InsertResultSumm
     with engine.begin() as conn:
         result = conn.execute(
             sqlalchemy.text("""
-                INSERT INTO results (diaries_id, type, ei_score, sn_score, tf_score, jp_score, summary)
-                SELECT d.id, :type, :ei_score, :sn_score, :tf_score, :jp_score, :summary
+                INSERT INTO results (diaries_id, type, ei_score, sn_score, tf_score, jp_score, summary, future_hint)
+                SELECT d.id, :type, :ei_score, :sn_score, :tf_score, :jp_score, :summary, :future_hint
                 FROM diaries d
                 WHERE d.id = :diaries_id AND d.user_id = :user_id
-                RETURNING id, diaries_id, type, ei_score, sn_score, tf_score, jp_score, summary
+                RETURNING id, diaries_id, type, ei_score, sn_score, tf_score, jp_score, summary, future_hint
             """),
             {
                 "user_id": user_id,
@@ -85,6 +85,7 @@ def save_result_service(user_id: int, diaries_id: int, request: InsertResultSumm
                 "tf_score": request.tf_score,
                 "jp_score": request.jp_score,
                 "summary": request.summary,
+                "future_hint": request.future_hint,
             }
         ).mappings().fetchone()
 
@@ -97,7 +98,7 @@ def get_result_by_user_and_diary_service(user_id: int, diaries_id: int) -> GetRe
     with engine.connect() as conn:
         result = conn.execute(
             sqlalchemy.text("""
-                SELECT results.id, results.diaries_id, type, ei_score, sn_score, tf_score, jp_score, summary
+                SELECT results.id, results.diaries_id, type, ei_score, sn_score, tf_score, jp_score, summary, future_hint
                 FROM results
                 INNER JOIN diaries ON results.diaries_id = diaries.id
                 WHERE diaries.user_id = :user_id AND diaries.id = :diaries_id
