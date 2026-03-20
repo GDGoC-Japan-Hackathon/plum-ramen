@@ -34,6 +34,14 @@ def login_page(request: Request):
         context={},
     )
 
+@router.get("/diary-list", response_class=HTMLResponse)
+def diary_list_page(request: Request):
+    return templates.TemplateResponse(
+        request=request,
+        name="diary_list.html",
+        context={},
+    )
+
 @router.get("/diary-form", response_class=HTMLResponse)
 def diary_form_page(request: Request):
     return templates.TemplateResponse(
