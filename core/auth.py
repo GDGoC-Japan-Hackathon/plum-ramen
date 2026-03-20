@@ -4,17 +4,11 @@ from fastapi.security import HTTPBearer, HTTPAuthorizationCredentials
 from core.firebase import *
 from core.db import engine
 import sqlalchemy
-import os
 
 # ヘッダーからトークン取得
 security = HTTPBearer()
 
-DEV_MODE = os.getenv("DEV_MODE", "false").lower() == "true"
-DEV_FIREBASE_UID = "dev_user"
-
 def verify_token_and_get_firebase_uid(token: str):
-    if DEV_MODE and token == "dev":
-        return DEV_FIREBASE_UID
     # ユーザー情報取得
     user_data = auth.verify_id_token(token) # {"uid", "email", "name", "picture"}
     return user_data["uid"]

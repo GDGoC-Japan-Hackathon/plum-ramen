@@ -10,9 +10,6 @@ const app = initializeApp({
 export const auth = getAuth(app);
 
 export function getIdToken() {
-    if (localStorage.getItem("dev_mode") === "true") {
-        return Promise.resolve("dev");
-    }
     // Firebaseがログイン状態の確認を終えるまで待ってからトークンを返す
     return new Promise((resolve, reject) => {
         onAuthStateChanged(auth, async (user) => {
@@ -45,9 +42,6 @@ export async function logout() {
 }
 
 export function requireLogin() {
-    if (localStorage.getItem("dev_mode") === "true") {
-        return;
-    }
     onAuthStateChanged(auth, (user) => {
         if (!user) {
             window.location.href = "/login";
