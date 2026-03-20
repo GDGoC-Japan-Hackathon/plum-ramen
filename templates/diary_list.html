@@ -1,6 +1,7 @@
 <body style="background-color: #FAF6EE; font-family: 'Helvetica Neue', Arial, sans-serif; margin: 0; padding: 20px 20px 80px;">
 
     {% include "components/header.html" %}
+    {% include "components/toast.html" %}
     
     <div style="text-align: center; margin-bottom: 20px;">
         <h2 style="color: #D4607A; margin: 0; font-size: 1.8rem; letter-spacing: 1px;">日記履歴</h2>
@@ -126,7 +127,7 @@
         function handleDiarySelect(diaryId) {
             const diary = allDiaries.find((item) => item.id === diaryId);
             if (!diary) {
-                alert("日記データの取得に失敗しました");
+                showToast("日記データの取得に失敗しました");
                 return;
             }
 
@@ -135,7 +136,7 @@
                 return;
             }
 
-            alert("まだ結果は生成していません。生成機能は後日対応予定です。");
+            showToast("まだ結果は生成していません。生成機能は後日対応予定です。", "warning");
         }
 
         // 検索フィルター機能
@@ -159,7 +160,7 @@
                 allDiaries = await getDiaries();
             } catch (error) {
                 console.error(error);
-                alert("日記の取得に失敗しました");
+                showToast("日記の取得に失敗しました");
                 return;
             }
             

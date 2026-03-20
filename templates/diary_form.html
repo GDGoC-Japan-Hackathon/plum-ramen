@@ -2,6 +2,7 @@
     style="background-color: #FAF6EE; font-family: 'Helvetica Neue', Arial, sans-serif; margin: 0; padding: 0; height: 100vh; overflow: hidden; display: flex; flex-direction: column;">
 
     {% include "components/header.html" %}
+    {% include "components/toast.html" %}
 
     <main class="diary-page"
         style="flex: 1; display: flex; align-items: center; justify-content: center; padding: 20px; box-sizing: border-box; overflow: hidden;">
@@ -125,7 +126,7 @@
                 return await response.json();
             } catch (error) {
                 console.error(error);
-                alert("日記の保存に失敗しました");
+                showToast("日記の保存に失敗しました");
                 return null;
             }
         }
@@ -140,14 +141,14 @@
             }
             console.log("日記を保存しました");
             console.log(savedDiary);
-            alert("日記を保存しました"); // ユーザーへのフィードバック用
+            showToast("日記を保存しました", "success");
         });
 
         // 質問生成のボタンクリックイベント（ローディングページへ移動）
         analyzeBtn.addEventListener("click", async () => {
             const text = textArea.value;
             if (text.length === 0) {
-                alert("日記を書いてから質問生成をしてください");
+                showToast("日記を書いてから質問生成をしてください", "warning");
                 return;
             }
             sessionStorage.setItem("pending-diary-body", text);

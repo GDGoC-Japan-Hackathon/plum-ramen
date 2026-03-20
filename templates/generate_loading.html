@@ -57,6 +57,7 @@
 </head>
 
 <body class="bg-background-light text-slate-900 min-h-screen">
+    {% include "components/toast.html" %}
     <div class="relative flex min-h-screen w-full flex-col overflow-x-hidden">
 
         <main class="flex flex-1 flex-col items-center justify-center px-4 py-8 relative">
@@ -190,7 +191,7 @@
                 const savedDiary = await saveDiary(diaryBody);
                 if (!savedDiary) {
                     console.error("日記の保存に失敗しました");
-                    alert("日記の保存に失敗しました");
+                    showToast("日記の保存に失敗しました");
                     window.location.href = "/diary-form";
                     return;
                 }
@@ -201,7 +202,7 @@
                 const questions = await generateQuestions(diaryBody);
                 if (!questions) {
                     console.error("質問生成に失敗しました");
-                    alert("質問生成に失敗しました");
+                    showToast("質問生成に失敗しました");
                     window.location.href = "/diary-form";
                     return;
                 }
@@ -227,7 +228,7 @@
                 window.location.href = `/answer-questions?diary_id=${diaryId}`;
             } catch (error) {
                 console.error(error);
-                alert("エラーが発生しました。日記入力に戻ります。");
+                showToast("エラーが発生しました。日記入力に戻ります。");
                 sessionStorage.removeItem("from-page-id");
                 window.location.href = "/diary-form";
             }
@@ -245,7 +246,7 @@
                 return await response.json();
             } catch (error) {
                 console.error(error);
-                alert("日記、質問、回答の取得に失敗しました");
+                showToast("日記、質問、回答の取得に失敗しました");
                 return null;
             }
         }
@@ -267,7 +268,7 @@
                 return await response.json();
             } catch (error) {
                 console.error(error);
-                alert("結果の生成に失敗しました");
+                showToast("結果の生成に失敗しました");
                 return null;
             }
         }
@@ -289,7 +290,7 @@
                 return await response.json();
             } catch (error) {
                 console.error(error);
-                alert("結果の保存に失敗しました");
+                showToast("結果の保存に失敗しました");
                 return null;
             }
         }
@@ -312,7 +313,7 @@
                 window.location.href = `/display-result?diary_id=${diaryId}`;
             } catch (error) {
                 console.error(error);
-                alert("診断結果の生成・保存に失敗しました");
+                showToast("診断結果の生成・保存に失敗しました");
             }
         }
 
