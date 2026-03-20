@@ -1,44 +1,33 @@
 <body>
     <main>
         <h1>ログイン</h1>
-        <button id="loginBtn">ログイン</button>
+        <button id="login-button">ログイン</button>
+        <p id="error-message"></p>
     </main>
 
     <script type="module">
-        import { requireLogin } from "/static/firebase-auth.js";
-        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.14.1/firebase-app.js";
-        import { getAuth, signInWithPopup, GoogleAuthProvider, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.14.1/firebase-auth.js";
+        import { onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.14.1/firebase-auth.js";
+        import { auth, login, logout } from "/static/firebase-auth.js";
 
-        const app = initializeApp({
-            apiKey: "AIzaSyDiwTbSQTk3ywXbAbtpxZDDkv1SxjtTJ-w",
-            authDomain: "gdgoc2026.firebaseapp.com",
-            projectId: "gdgoc2026",
-        });
-        const auth = getAuth(app);
-
-        requireLogin();
+        const loginBtn = document.getElementById("login-button");
+        const errorMessage = document.getElementById("error-message");
 
         loginBtn.addEventListener("click", async () => {
             if (auth.currentUser) {
-                await signOut(auth);
+                await logout();
             } else {
-                // googleログイン設定
-                const provider = new GoogleAuthProvider();
-                // googleログイン開始
-                const result = await signInWithPopup(auth, provider);
-                // idトークン取得
-                const idToken = await result.user.getIdToken();
-                console.log(idToken);
+                try {
+                    await login();
+                } catch (error) {
+                    errorMessage.textContent = error.message;
+                }
             }
         });
 
         onAuthStateChanged(auth, (user) => {
             if (user) {
-                console.log("ログインしました");
                 window.location.href = "/diary-form";
-                loginBtn.textContent = "ログアウト";
             } else {
-                console.log("ログアウトしました");
                 loginBtn.textContent = "ログイン";
             }
         })
