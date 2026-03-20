@@ -1,0 +1,25 @@
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<style>
+    body { padding-top: calc(70px + env(safe-area-inset-top)); }
+</style>
+<header style="position: fixed; top: 0; left: 0; right: 0; z-index: 1000; background: #FAF6EE; border-bottom: 2px solid #D4607A; padding-top: env(safe-area-inset-top);">
+    <div style="max-width: 800px; margin: 0 auto; padding: 12px 20px; display: flex; justify-content: space-between; align-items: center;">
+        <div style="display: flex; align-items: center; gap: 10px; text-decoration: none;">
+            <!-- アプリロゴ -->
+            <img src="/static/plum_book.svg" alt="uMeBTI logo" style="width: 44px; height: 44px; display: block;">
+            <span style="color: #D4607A; font-weight: bold; font-size: 1.4rem; letter-spacing: 2px;">uMeBTI</span>
+        </div>
+        <button id="logout-button"
+            style="padding: 8px 20px; border-radius: 30px; border: 1.5px solid #D4607A; background: #FAF6EE; color: #D4607A; font-weight: bold; cursor: pointer; font-size: 0.85rem; transition: 0.2s;"
+            onmouseover="this.style.background='#fce8ed'" onmouseout="this.style.background='#FAF6EE'">ログアウト</button>
+    </div>
+    <script type="module">
+        import { logout } from "/static/firebase-auth.js";
+
+        const logoutBtn = document.getElementById("logout-button");
+
+        logoutBtn.addEventListener("click", async () => {
+            await logout();
+        })
+    </script>
+</header>

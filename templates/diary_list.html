@@ -1,0 +1,129 @@
+<body style="background-color: #FAF6EE; font-family: 'Helvetica Neue', Arial, sans-serif; margin: 0; padding: 20px;">
+
+    {% include "components/header.html" %}
+    
+    <div style="text-align: center; margin-bottom: 20px;">
+        <h2 style="color: #D4607A; margin: 0; font-size: 1.8rem; letter-spacing: 1px;">日記履歴</h2>
+    </div>
+
+    <div style="text-align: center; margin-bottom: 30px;">
+        <input type="text" id="search-input" placeholder="日記本文、MBTIで検索..." style="width: 100%; max-width: 400px; padding: 12px 20px; border: 1px solid #e0e0e0; border-radius: 24px; font-size: 0.95rem; outline: none; box-sizing: border-box; transition: border-color 0.2s; box-shadow: 0 2px 8px rgba(0,0,0,0.02);">
+    </div>
+
+    <main id="diaries-list" style="max-width: 600px; margin: 0 auto;"></main>
+
+    {% include "components/footer.html" %}
+
+    <style>
+        /* 矢印ボタン：少し小ぶりにしてスッキリさせました */
+        .nav-btn {
+            background: white;
+            border: 1px solid #e0e0e0;
+            color: #D4607A;
+            width: 36px;
+            height: 36px;
+            border-radius: 50%;
+            cursor: pointer;
+            font-weight: bold;
+            transition: all 0.2s;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 0.8rem;
+        }
+
+        .nav-btn:hover {
+            background: #FAE8ED;
+            border-color: #D4607A;
+        }
+
+        #search-input:focus {
+            border-color: #D4607A;
+        }
+    </style>
+
+    <script type="module">
+        import { requireLogin, getIdToken } from "/static/firebase-auth.js";
+
+        requireLogin();
+
+        const diariesListElement = document.getElementById("diaries-list");
+        const searchInput = document.getElementById("search-input");
+
+        // 日記データを一時保存する
+        let allDiaries = [];
+
+        async function getDiaries() {
+            try {
+                const idToken = await getIdToken();
+
+                const response = await fetch('/api/diaries/type', {
+                    headers: {
+                        "Authorization": `Bearer ${idToken}`,
+                    },
+                });
+                if (!response.ok) {
+                    throw new Error(`failed to get diaries: ${response.status}`);
+                }
+                return await response.json();
+            } catch (error) {
+                console.error(error);
+                return [];
+            }
+        }
+
+        function renderList(diaries) {
+            if (!diaries || diaries.length === 0) {
+                diariesListElement.innerHTML = "<p style='text-align:center; color:#999; margin-top:40px;'>該当する日記が見つかりません。</p>";
+                return;
+            }
+
+            diariesListElement.innerHTML = diaries.map(diary => `
+                <div style="background: white; border-radius: 16px; padding: 24px; margin-bottom: 16px; box-shadow: 0 4px 12px rgba(0,0,0,0.03);">
+                    <div style="margin-bottom: 14px;">
+                        <div style="color: #D4607A; font-weight: bold; font-size: 1.1rem; margin-bottom: 6px;">
+                            ${diary.date ? diary.date.replace(/-/g, '.') : ''}
+                        </div>
+                        ${diary.type ? `<div style="background: #E8B84B; color: #1A1A1A; font-size: 0.75rem; padding: 3px 10px; border-radius: 6px; display: inline-block; font-weight: 600;">${diary.type}</div>` : ''}
+                    </div>
+                    <p style="color: #1A1A1A; font-size: 0.95rem; line-height: 1.8; margin: 0; display: -webkit-box; -webkit-line-clamp: 3; -webkit-box-orient: vertical; overflow: hidden; text-overflow: ellipsis; white-space: pre-wrap;">${diary.body ? diary.body.trim() : ''}</p>
+                </div>
+            `).join('');
+        }
+
+        // 検索フィルター機能
+        function handleSearch() {
+            const keyword = searchInput.value.toLowerCase();
+
+            const filteredDiaries = allDiaries.filter(diary => {
+                const bodyText = (diary.body || "").toLowerCase();
+                const typeText = (diary.type || "").toLowerCase();
+
+                // 日記本文、またはMBTIのいずれかに入力文字が含まれていれば true
+                return bodyText.includes(keyword) || typeText.includes(keyword);
+            });
+
+            // 絞り込んだ結果を描画
+            renderList(filteredDiaries);
+        }
+
+        async function run() {
+            try {
+                allDiaries = await getDiaries();
+            } catch (error) {
+                console.error(error);
+                alert("日記の取得に失敗しました");
+                return;
+            }
+            
+            // 初回はすべての日記を表示
+            renderList(allDiaries);
+
+            if (searchInput) {
+                searchInput.addEventListener("input", handleSearch);
+            }
+        }
+
+        run();
+    </script>
+</body>
