@@ -1,4 +1,5 @@
 from pydantic import BaseModel
+from datetime import datetime
 
 class DiarySection(BaseModel):
     body: str
@@ -24,3 +25,9 @@ class GetFullDiaryDataResponse(BaseModel):
     diary: DiarySection
     questions: QuestionsWrapper
     answers: AnswersWrapper
+
+class GetFullTypesResponse(BaseModel):
+    body: str
+    date: str
+    time: str
+    type: str
