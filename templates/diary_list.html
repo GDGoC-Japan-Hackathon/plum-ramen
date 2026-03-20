@@ -1,27 +1,16 @@
 <body style="background-color: #f8f5f5; font-family: 'Helvetica Neue', Arial, sans-serif; margin: 0; padding: 20px;">
+
     {% include "components/header.html" %}
-    <div style="text-align: center; margin-bottom: 30px;">
+    
+    <div style="text-align: center; margin-bottom: 20px;">
         <h2 style="color: #800020; margin: 0; font-size: 1.8rem; letter-spacing: 1px;">日記履歴</h2>
     </div>
 
-    <div style="max-width: 600px; margin: 0 auto 15px; padding: 0 10px;">
-        <input type="text" id="search-input" oninput="handleSearch()" placeholder="キーワードで検索..."
-            style="width: 100%; padding: 12px 20px; border-radius: 25px; border: 1px solid #ddd; box-sizing: border-box; font-size: 0.9rem; outline: none; transition: border 0.3s;">
+    <div style="text-align: center; margin-bottom: 30px;">
+        <input type="text" id="search-input" placeholder="日記本文、MBTIで検索..." style="width: 100%; max-width: 400px; padding: 12px 20px; border: 1px solid #e0e0e0; border-radius: 24px; font-size: 0.95rem; outline: none; box-sizing: border-box; transition: border-color 0.2s; box-shadow: 0 2px 8px rgba(0,0,0,0.02);">
     </div>
 
-    <div
-        style="max-width: 600px; margin: 0 auto 24px; padding: 0 10px; display: flex; align-items: center; justify-content: flex-start; gap: 10px;">
-        <button onclick="changeMonth(-1)" class="nav-btn">＜</button>
-
-        <div id="month-display" onclick="toggleAllView()"
-            style="background: white; border: 1px solid #e0e0e0; color: #800020; padding: 8px 20px; border-radius: 25px; font-weight: bold; min-width: 100px; text-align: center; cursor: pointer; font-size: 0.9rem;">
-            今月
-        </div>
-
-        <button onclick="changeMonth(1)" class="nav-btn">＞</button>
-    </div>
-
-    <main id="types-list" style="max-width: 600px; margin: 0 auto;"></main>
+    <main id="diaries-list" style="max-width: 600px; margin: 0 auto;"></main>
 
     {% include "components/footer.html" %}
 
@@ -53,127 +42,86 @@
         }
     </style>
 
-    <script id="module">
+    <script type="module">
         import { requireLogin, getIdToken } from "/static/firebase-auth.js";
 
         requireLogin();
 
-        let allDiaries = [];
-        let searchKeyword = "";
-        let displayDate = new Date(); // 表示基準日
-        let viewMode = 'month';      // 'month' または 'all'
+        const diariesListElement = document.getElementById("diaries-list");
+        const searchInput = document.getElementById("search-input");
 
-        // データの取得
-        async function getTypes() {
+        // 日記データを一時保存する
+        let allDiaries = [];
+
+        async function getDiaries() {
             try {
                 const idToken = await getIdToken();
+
                 const response = await fetch('/api/diaries/type', {
                     headers: {
                         "Authorization": `Bearer ${idToken}`,
                     },
                 });
-                return response.ok ? await response.json() : [];
+                if (!response.ok) {
+                    throw new Error(`failed to get diaries: ${response.status}`);
+                }
+                return await response.json();
             } catch (error) {
+                console.error(error);
                 return [];
             }
         }
 
-        // リストの描画
-        function renderList(data) {
-            const listElement = document.getElementById("types-list");
-            if (!data || data.length === 0) {
-                listElement.innerHTML = "<p style='text-align:center; color:#999; margin-top:40px;'>該当する日記がありません。</p>";
+        function renderList(diaries) {
+            if (!diaries || diaries.length === 0) {
+                diariesListElement.innerHTML = "<p style='text-align:center; color:#999; margin-top:40px;'>該当する日記が見つかりません。</p>";
                 return;
             }
 
-            listElement.innerHTML = data.map(item => `
+            diariesListElement.innerHTML = diaries.map(diary => `
                 <div style="background: white; border-radius: 16px; padding: 24px; margin-bottom: 16px; box-shadow: 0 4px 12px rgba(0,0,0,0.03);">
                     <div style="margin-bottom: 14px;">
                         <div style="color: #800020; font-weight: bold; font-size: 1.1rem; margin-bottom: 6px;">
-                            ${item.date.replace(/-/g, '.')}
+                            ${diary.date ? diary.date.replace(/-/g, '.') : ''}
                         </div>
-                        <div style="background: #fff0f3; color: #800020; font-size: 0.75rem; padding: 3px 10px; border-radius: 6px; display: inline-block; font-weight: 600;">
-                            ${item.type}
-                        </div>
+                        ${diary.type ? `<div style="background: #fff0f3; color: #800020; font-size: 0.75rem; padding: 3px 10px; border-radius: 6px; display: inline-block; font-weight: 600;">${diary.type}</div>` : ''}
                     </div>
-                    <p style="color: #444; font-size: 0.95rem; line-height: 1.8; margin: 0; display: -webkit-box; -webkit-line-clamp: 3; -webkit-box-orient: vertical; overflow: hidden; text-overflow: ellipsis; white-space: pre-wrap;">${item.body.trim()}</p>
+                    <p style="color: #444; font-size: 0.95rem; line-height: 1.8; margin: 0; display: -webkit-box; -webkit-line-clamp: 3; -webkit-box-orient: vertical; overflow: hidden; text-overflow: ellipsis; white-space: pre-wrap;">${diary.body ? diary.body.trim() : ''}</p>
                 </div>
             `).join('');
         }
 
-        // フィルター適用
-        function applyFilters() {
-            const year = displayDate.getFullYear();
-            const month = String(displayDate.getMonth() + 1).padStart(2, '0');
-            const monthStr = `${year}-${month}`;
-
-            const filtered = allDiaries.filter(item => {
-                const monthMatch = (viewMode === 'all' || item.date.startsWith(monthStr));
-                const targetText = `${item.body} ${item.type} ${item.date}`.toLowerCase();
-                const keywordMatch = targetText.includes(searchKeyword);
-                return monthMatch && keywordMatch;
-            });
-            renderList(filtered);
-        }
-
-        // 月の変更
-        function changeMonth(offset) {
-            viewMode = 'month';
-            displayDate.setMonth(displayDate.getMonth() + offset);
-            updateMonthDisplay();
-            applyFilters();
-        }
-
-        // 月表示の更新
-        function updateMonthDisplay() {
-            const displayEl = document.getElementById('month-display');
-            const now = new Date();
-
-            if (viewMode === 'all') {
-                displayEl.innerText = "すべて表示";
-                displayEl.style.background = "#800020";
-                displayEl.style.color = "white";
-            } else {
-                displayEl.style.background = "white";
-                displayEl.style.color = "#800020";
-
-                if (displayDate.getFullYear() === now.getFullYear() &&
-                    displayDate.getMonth() === now.getMonth()) {
-                    displayEl.innerText = `${displayDate.getFullYear()}年${displayDate.getMonth() + 1}月`;
-                } else {
-                    displayEl.innerText = `${displayDate.getFullYear()}年${displayDate.getMonth() + 1}月`;
-                }
-            }
-        }
-
-        // 「すべて表示」の切り替え
-        function toggleAllView() {
-            viewMode = (viewMode === 'all') ? 'month' : 'all';
-            updateMonthDisplay();
-            applyFilters();
-        }
-
-        // 検索入力
+        // 検索フィルター機能
         function handleSearch() {
-            searchKeyword = document.getElementById('search-input').value.toLowerCase();
-            applyFilters();
+            const keyword = searchInput.value.toLowerCase();
+
+            const filteredDiaries = allDiaries.filter(diary => {
+                const bodyText = (diary.body || "").toLowerCase();
+                const typeText = (diary.type || "").toLowerCase();
+
+                // 日記本文、またはMBTIのいずれかに入力文字が含まれていれば true
+                return bodyText.includes(keyword) || typeText.includes(keyword);
+            });
+
+            // 絞り込んだ結果を描画
+            renderList(filteredDiaries);
         }
 
-        let isAscending = false; // 初期値は降順（新しい順）
-
-        function toggleSort() {
-            isAscending = !isAscending; // 真偽値を反転させる
-            const btn = document.getElementById('sort-btn');
-            btn.style.background = isAscending ? "#800020" : "white"; // 昇順の時はボタンの色を変える
-            btn.style.color = isAscending ? "white" : "#800020";
-            applyFilters();
-        }
-
-        // 実行
         async function run() {
-            allDiaries = await getTypes();
-            updateMonthDisplay();
-            applyFilters();
+            try {
+                allDiaries = await getDiaries();
+            } catch (error) {
+                console.error(error);
+                alert("日記の取得に失敗しました");
+                return;
+            }
+            
+            // 初回はすべての日記を表示
+            renderList(allDiaries);
+
+            if (searchInput) {
+                searchInput.addEventListener("input", handleSearch);
+            }
         }
 
         run();
