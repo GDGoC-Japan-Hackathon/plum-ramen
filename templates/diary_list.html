@@ -8,7 +8,7 @@
     </div>
 
     <div style="text-align: center; margin-bottom: 30px; position: relative; display: inline-block; width: 100%; max-width: 400px; left: 50%; transform: translateX(-50%);">
-        <input type="text" id="search-input" placeholder="日記本文、MBTIで検索..." style="width: 100%; padding: 12px 44px 12px 20px; border: 1px solid #e0e0e0; border-radius: 24px; font-size: 0.95rem; outline: none; box-sizing: border-box; transition: border-color 0.2s; box-shadow: 0 2px 8px rgba(0,0,0,0.02);">
+        <input type="text" id="search-input" placeholder="日記本文、性格タイプで検索..." style="width: 100%; padding: 12px 44px 12px 20px; border: 1px solid #e0e0e0; border-radius: 24px; font-size: 0.95rem; outline: none; box-sizing: border-box; transition: border-color 0.2s; box-shadow: 0 2px 8px rgba(0,0,0,0.02);">
         <button id="search-clear" onclick="document.getElementById('search-input').value=''; document.getElementById('search-input').dispatchEvent(new Event('input'));" style="display: none; position: absolute; right: 14px; top: 50%; transform: translateY(-50%); background: none; border: none; cursor: pointer; color: #94a3b8; font-size: 1rem; padding: 4px; line-height: 1;">✕</button>
     </div>
 
@@ -196,7 +196,7 @@
                 const bodyText = (diary.body || "").toLowerCase();
                 const typeText = (diary.type || "").toLowerCase();
 
-                // 日記本文、またはMBTIのいずれかに入力文字が含まれていれば true
+                // 日記本文、または性格タイプのいずれかに入力文字が含まれていれば true
                 return bodyText.includes(keyword) || typeText.includes(keyword);
             });
 
