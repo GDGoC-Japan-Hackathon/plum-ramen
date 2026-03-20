@@ -1,10 +1,7 @@
 <body
     style="background-color: #fef8f8; font-family: 'Helvetica Neue', Arial, 'Hiragino Kaku Gothic ProN', 'Hiragino Sans', sans-serif; margin: 0; padding: 40px 20px;">
 
-    <header
-        style="max-width: 800px; margin: 0 auto 20px; color: #d81b60; font-weight: bold; font-size: 1.2rem; letter-spacing: 1px;">
-        Brand new
-    </header>
+    {% include "components/header.html" %}
 
     <main class="diary-page" style="max-width: 800px; margin: 0 auto;">
         <div class="diary-card"
@@ -48,17 +45,15 @@
 
     <footer
         style="margin-top: 60px; text-align: center; border-top: 1px solid #eee; padding-top: 30px; padding-bottom: 40px;">
-        <div style="margin-bottom: 15px; color: #666; font-size: 0.9rem;">hello world</div>
         <div style="display: flex; justify-content: center; gap: 24px;">
             <a href="/diary-form"
                 style="text-decoration: none; color: #d81b60; font-size: 0.9rem; font-weight: bold;">日記作成</a>
             <a href="/answer-questions" style="text-decoration: none; color: #666; font-size: 0.9rem;">質問回答</a>
             <a href="/display-result" style="text-decoration: none; color: #666; font-size: 0.9rem;">診断結果表示</a>
         </div>
-        <p style="color: #ccc; font-size: 0.75rem; margin-top: 20px;">&copy; 2026 Brand New</p>
+        <p style="color: #ccc; font-size: 0.75rem; margin-top: 20px;">&copy; 2026 GDGoc-Japan-Hackathon plum-ramen </p>
     </footer>
 
->>>>>>> origin/fix_diary_form
     <style>
         .btn-outline:hover {
             background: #fff0f3;
@@ -148,5 +143,3 @@
         });
     </script>
 </body>
-
-</html>
