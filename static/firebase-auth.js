@@ -38,13 +38,13 @@ export async function login() {
 
 export async function logout() {
     await signOut(auth);
-    window.location.href = "/login";
+    window.location.href = "/";
 }
 
 export function requireLogin() {
     onAuthStateChanged(auth, (user) => {
         if (!user) {
-            window.location.href = "/login";
+            window.location.href = "/";
         }
     })
 }
